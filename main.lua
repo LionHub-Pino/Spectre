@@ -1,64 +1,38 @@
--- Tải thư viện Orion
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local _, library = pcall(loadstring(game:HttpGet("https://raw.githubusercontent.com/TrixAde/Osmium/main/OsmiumLibrary.lua")))
 
--- Tạo cửa sổ Orion với Key System mặc định
-local Window = OrionLib:MakeWindow({
-    Name = "Lion-Hub",
-    IntroText = "Chào Mừng Đến Với LionHub by @Pino_Azure",
-    HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "LionHubConfig",
-    IntroEnabled = true, -- Bật Key System
-    IntroKey = "Pino_Ontop" -- Key mặc định
-})
+local window = library:CreateWindow("Osmium UI Library")
 
--- Tab: Update Log
-local UpdateTab = Window:MakeTab({
-    Name = "Update Log",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
-UpdateTab:AddLabel("English-Vietnam")
-UpdateTab:AddLabel("Available on all clients")
-UpdateTab:AddLabel("Dùng Được trên tất cả client")
-UpdateTab:AddLabel("Android -IOS -PC")
-UpdateTab:AddLabel("Support Vietnamese script for Vietnamese people")
-UpdateTab:AddLabel("Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt")
-UpdateTab:AddLabel("Support tools")
-UpdateTab:AddLabel("Hỗ Trợ các công cụ")
+local test = window:CreateTab("Main")
+local info = window:CreateTab("Info")
+local cred = window:CreateTab("Credits")
 
--- Tab: Main
-local MainTab = Window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
-MainTab:AddButton({
-    Name = "W-Azure",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/wazure.lua"))()
-    end
-})
-MainTab:AddButton({
-    Name = "Maru Hub",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/maru.lua"))()
-    end
-})
-MainTab:AddButton({
-    Name = "Banana Hub",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
-    end
-})
+local dropdown = test:CreateDropdown("DropDown Exemple",{"Nami","Robin","Yamato"},function(val)
+	print(val)
+end)
 
--- Khởi tạo Orion
-OrionLib:Init()
+local label = test:CreateLabel("This is a Title","this is an exemple of description")
 
--- Thông báo chào mừng (tùy chọn)
-OrionLib:MakeNotification({
-    Name = "Lion-Hub",
-    Content = "Nhập key 'Pino_Ontop' để truy cập!",
-    Image = "rbxassetid://4483362458",
-    Time = 5
-})
+local sld = test:CreateSlider("Slider Exemple",-100,100,function(arg)
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = arg
+end)
+
+test:CreateTextbox("TextBox Exemple", function(value)
+    print("Value = ", value)
+end, "Write Here")
+
+local toggle = test:CreateToggle("Toggle Exemple",false,function()
+    
+end)
+
+local batp = test:CreateButton("Button Exemple", function()
+    print("c")
+end)
+
+local label = info:CreateLabel("KeyBind :","KeyBind to Close/Open the Gui Is 'Left Control'")
+
+local label = cred:CreateLabel("Interface :","Made by Trix#2794")
+local label = cred:CreateLabel("Interface Scripts :","Made by Trix#2794")
+local label = cred:CreateLabel("Scripting :","by Trix#2794 / JulMan#1234")
+local batp = cred:CreateButton("Copy Discord Server Link", function()
+    setclipboard("discord.gg/TT3y4gkJtq")
+end)
