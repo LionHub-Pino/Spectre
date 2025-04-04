@@ -1,9 +1,8 @@
--- Pino-Script-Tong-Hop with Rayfield UI by Grok
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Lion-Hub",
-   LoadingTitle = "Chào Mừng Đến Với LionsHub",
+   LoadingTitle = "Chào Mừng Đến Với LionHub",
    LoadingSubtitle = "by @Pino_Azure",
    Theme = "Ocean",
    ConfigurationSaving = {
@@ -14,7 +13,7 @@ local Window = Rayfield:CreateWindow({
    KeySettings = {
       Title = "Pino_Azure Welcome",
       Subtitle = "Key System",
-      Note = "key là Pino_Ontop",
+      Note = "key là ",
       FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = true,
