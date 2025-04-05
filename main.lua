@@ -1,7 +1,7 @@
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
--- Tạo cửa sổ WindUI với key system
+-- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
     Title = "Lion-Hub",
     Icon = "door-open",
@@ -10,18 +10,23 @@ local Window = WindUI:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
     Theme = "Dark",
-    SideBarWidth = 170,
-    HasOutline = true,
+    SideBarWidth = 200,
+    HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub" }, -- Thay đổi key thành pino_ontop và LionHub
-        Note = "Enter the correct key to proceed.",
-        SaveKey = true, -- Lưu key để không cần nhập lại
+        Key = { "pino_ontop", "LionHub" },
+        Note = "Nhập key chính xác để tiếp tục.",
+        URL = "https://discord.gg/wmUmGVG6ut",
+        SaveKey = true,
+        Thumbnail = {
+            Image = "rbxassetid://18220445082",
+            Title = "Lion-Hub Key System"
+        },
     },
 })
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Open Lion-Hub",
+    Title = "Mở Lion-Hub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -34,19 +39,19 @@ Window:EditOpenButton({
 
 -- Tạo các tab
 local Tabs = {
-    MainTab = Window:Tab({ Title = "Main", Icon = "home", Desc = "Main features and scripts." }),
-    UpdateTab = Window:Tab({ Title = "Update Log", Icon = "info", Desc = "Update information and details." }),
+    MainTab = Window:Tab({ Title = "Chính", Icon = "home", Desc = "Các tính năng chính và script." }),
+    NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
 }
 
 -- Chọn tab mặc định
 Window:SelectTab(1)
 
--- Tab: Main
-Tabs.MainTab:Section({ Title = "Scripts" })
+-- Tab: Chính
+Tabs.MainTab:Section({ Title = "Script" })
 
 Tabs.MainTab:Button({
     Title = "W-Azure",
-    Desc = "Run W-Azure script",
+    Desc = "Chạy script W-Azure",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/wazure.lua"))()
     end
@@ -54,7 +59,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Maru Hub",
-    Desc = "Run Maru Hub script",
+    Desc = "Chạy script Maru Hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/maru.lua"))()
     end
@@ -62,105 +67,92 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Banana Hub",
-    Desc = "Run Banana Hub script",
+    Desc = "Chạy script Banana Hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
     end
 })
 
 Tabs.MainTab:Button({
-    Title = "Blox Fruits Hub",
-    Desc = "Run Blox Fruits script",
+    Title = "Server Discord Hỗ Trợ",
+    Desc = "Tham gia server Discord để được hỗ trợ",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/refs/heads/main/main.lua"))()
+        local HttpService = game:GetService("HttpService")
+        local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+        if request then
+            request({
+                Url = "http://127.0.0.1:6463/rpc?v=1",
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json",
+                    ["Origin"] = "https://discord.com"
+                },
+                Body = HttpService:JSONEncode({
+                    cmd = "INVITE_BROWSER",
+                    args = {
+                        code = "wmUmGVG6ut"
+                    },
+                    nonce = HttpService:GenerateGUID(false)
+                })
+            })
+        else
+            Window:Notification({
+                Title = "Lion-Hub",
+                Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
+                Duration = 5
+            })
+        end
     end
 })
 
-Tabs.MainTab:Section({ Title = "Theme Settings" })
+Tabs.MainTab:Section({ Title = "Cài Đặt Giao Diện" })
 
 Tabs.MainTab:Dropdown({
-    Title = "Change Theme",
-    Values = { "Dark", "Light", "Aqua", "Green", "Amethyst" },
-    Value = "Dark",
+    Title = "Đổi Giao Diện",
+    Values = { "Tối", "Sáng", "Xanh Nước Biển", "Xanh Lá", "Tím" },
+    Value = "Tối",
     Callback = function(value)
-        WindUI:SetTheme(value)
+        local themeMap = {
+            ["Tối"] = "Dark",
+            ["Sáng"] = "Light",
+            ["Xanh Nước Biển"] = "Aqua",
+            ["Xanh Lá"] = "Green",
+            ["Tím"] = "Amethyst"
+        }
+        WindUI:SetTheme(themeMap[value])
         Window:Notification({
             Title = "Lion-Hub",
-            Text = "Đã đổi theme thành " .. value,
+            Text = "Đã đổi giao diện thành " .. value,
             Duration = 3
         })
     end
 })
 
--- Tab: Update Log
-Tabs.UpdateTab:Section({ Title = "Details" })
+-- Tab: Nhật Ký Cập Nhật
+Tabs.NotificationTab:Section({ Title = "Thông Tin Cập Nhật" })
 
-Tabs.UpdateTab:Paragraph({
-    Title = "Details",
-    Text = "- English-Vietnam\n- Available on all clients\n- Dùng Được trên tất cả client\n- Android -IOS -PC\n- Support Vietnamese script for Vietnamese people\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt\n- Support tools\n- Hỗ Trợ các công cụ"
-})
-
--- Tạo nút hình tròn để đóng/mở giao diện
-local uiEnabled = true
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50) -- Kích thước hình tròn (50x50)
-toggleButton.Position = UDim2.new(0, 10, 0, 10) -- Góc trên bên trái
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215) -- Màu xanh dương
-toggleButton.Text = "" -- Không hiển thị chữ
-toggleButton.BorderSizePixel = 0
-toggleButton.BackgroundTransparency = 0
-
--- Làm nút thành hình tròn
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(1, 0) -- Bo tròn hoàn toàn (hình tròn)
-corner.Parent = toggleButton
-
--- Tạo ScreenGui riêng cho nút
-local buttonGui = Instance.new("ScreenGui")
-buttonGui.Name = "ToggleButtonGui"
-buttonGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-toggleButton.Parent = buttonGui
-
--- Thêm hiệu ứng hover
-local function updateButtonColor()
-    if uiEnabled then
-        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215) -- Màu xanh dương khi UI bật
-    else
-        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ khi UI tắt
+Tabs.NotificationTab:Button({
+    Title = "Xem Nhật Ký Cập Nhật",
+    Callback = function() 
+        WindUI:Notify({
+            Title = "Nhật Ký Cập Nhật - Phần 1",
+            Content = "- Tiếng Anh-Tiếng Việt\n- Có sẵn trên mọi client\n- Dùng Được trên tất cả client",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1) -- Đợi thông báo trước biến mất
+        WindUI:Notify({
+            Title = "Nhật Ký Cập Nhật - Phần 2",
+            Content = "- Android - iOS - PC\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1)
+        WindUI:Notify({
+            Title = "Nhật Ký Cập Nhật - Phần 3",
+            Content = "- Hỗ Trợ các công cụ\n- Và Update Mỗi Tuần",
+            Icon = "bell",
+            Duration = 5,
+        })
     end
-end
-
-toggleButton.MouseEnter:Connect(function()
-    if uiEnabled then
-        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255) -- Sáng hơn khi hover
-    else
-        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    end
-end)
-
-toggleButton.MouseLeave:Connect(function()
-    updateButtonColor()
-end)
-
--- Logic nút đóng/mở
-toggleButton.MouseButton1Click:Connect(function()
-    uiEnabled = not uiEnabled
-    local windGui = buttonGui.Parent:FindFirstChild("WindUI") -- Tìm GUI của WindUI
-    if windGui then
-        windGui.Enabled = uiEnabled
-        updateButtonColor()
-        print(uiEnabled and "UI đã được bật" or "UI đã được tắt")
-    else
-        print("Không tìm thấy WindUI GUI!")
-    end
-end)
-
--- Đảm bảo nút luôn hiển thị trên cùng
-buttonGui.DisplayOrder = 10
-
--- Thông báo chào mừng
-Window:Notification({
-    Title = "Lion-Hub",
-    Text = "Chào mừng đến với Lion-Hub!",
-    Duration = 3
 })
