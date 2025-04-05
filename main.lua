@@ -82,8 +82,8 @@ userLabel.Parent = infoFrame
 
 -- Hiệu ứng cầu vồng cho User Name
 RunService.RenderStepped:Connect(function()
-    local hue = (tick() % 5) / 5 -- Tạo chu kỳ màu thay đổi trong 5 giây
-    local color = Color3.fromHSV(hue, 1, 1) -- Hue thay đổi, Saturation và Value max
+    local hue = (tick() % 5) / 5
+    local color = Color3.fromHSV(hue, 1, 1)
     userLabel.TextColor3 = color
 end)
 
@@ -146,18 +146,18 @@ local startTime = os.time()
 -- Tạo TextLabel cho giờ Việt Nam (trong Window)
 local vietnamTimeLabel = Instance.new("TextLabel")
 vietnamTimeLabel.Size = UDim2.new(0, 150, 0, 20)
-vietnamTimeLabel.Position = UDim2.new(1, -160, 0, 5) -- Đặt ở góc trên phải, dưới thanh title
+vietnamTimeLabel.Position = UDim2.new(1, -160, 0, 5)
 vietnamTimeLabel.BackgroundTransparency = 1
 vietnamTimeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
 vietnamTimeLabel.TextSize = 14
 vietnamTimeLabel.Font = Enum.Font.Gotham
 vietnamTimeLabel.TextXAlignment = Enum.TextXAlignment.Right
-vietnamTimeLabel.Parent = Window:GetGUIRef() -- Gắn vào Window
+vietnamTimeLabel.Parent = Window:GetGUIRef()
 
 -- Tạo TextLabel cho thời gian hoạt động (trong Window)
 local timeWorkLabel = Instance.new("TextLabel")
 timeWorkLabel.Size = UDim2.new(0, 150, 0, 20)
-timeWorkLabel.Position = UDim2.new(1, -160, 0, 25) -- Đặt ngay dưới giờ Việt Nam
+timeWorkLabel.Position = UDim2.new(1, -160, 0, 25)
 timeWorkLabel.BackgroundTransparency = 1
 timeWorkLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
 timeWorkLabel.TextSize = 14
@@ -167,11 +167,9 @@ timeWorkLabel.Parent = Window:GetGUIRef()
 
 -- Cập nhật thời gian
 RunService.RenderStepped:Connect(function()
-    -- Giờ Việt Nam (UTC+7)
-    local vietnamTime = os.time() + 7 * 3600 -- Thêm 7 giờ từ UTC
+    local vietnamTime = os.time() + 7 * 3600
     vietnamTimeLabel.Text = "VN Time: " .. os.date("%H:%M:%S", vietnamTime)
 
-    -- Thời gian hoạt động
     local elapsed = os.time() - startTime
     local hours = math.floor(elapsed / 3600)
     local minutes = math.floor((elapsed % 3600) / 60)
@@ -194,12 +192,52 @@ Window:EditOpenButton({
 
 -- Tạo các tab
 local Tabs = {
+    MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
+    KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
     MainTab = Window:Tab({ Title = "Chính", Icon = "home", Desc = "Các tính năng chính và script." }),
     NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
 }
 
 -- Chọn tab mặc định
 Window:SelectTab(1)
+
+-- Tab: MainHub
+Tabs.MainHubTab:Section({ Title = "MainHub Script" })
+
+Tabs.MainHubTab:Button({
+    Title = "MainHub",
+    Desc = "Chạy script MainHub",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
+    end
+})
+
+-- Tab: Kaitun
+Tabs.KaitunTab:Section({ Title = "Kaitun Scripts" })
+
+Tabs.KaitunTab:Button({
+    Title = "Kaitun",
+    Desc = "Chạy script Kaitun",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunDF",
+    Desc = "Chạy script KaitunDF",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "Marukaitun",
+    Desc = "Chạy script Marukaitun",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
+    end
+})
 
 -- Tab: Chính
 Tabs.MainTab:Section({ Title = "Script" })
@@ -240,7 +278,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 3",
     Desc = "Chạy script Banana Hub (Phiên bản 3)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
     end
 })
 
