@@ -1,69 +1,103 @@
--- Tải Fluent UI Lib
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+-- Tải WindUI Lib
+local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
--- Tạo cửa sổ Fluent UI
-local Window = Fluent:CreateWindow({
+-- Tạo cửa sổ WindUI với key system
+local Window = WindUI:CreateWindow({
     Title = "Lion-Hub",
-    SubTitle = "by Pino_Azure",
-    TabWidth = 160,
+    Icon = "door-open",
+    Author = "Pino_Azure",
+    Folder = "LionHubData",
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
+    Transparent = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl
+    SideBarWidth = 170,
+    HasOutline = true,
+    KeySystem = { 
+        Key = { "pino_ontop", "LionHub" }, -- Thay đổi key thành pino_ontop và LionHub
+        Note = "Enter the correct key to proceed.",
+        SaveKey = true, -- Lưu key để không cần nhập lại
+    },
 })
 
--- Tab: Update Log
-local updateTab = Window:AddTab({ Title = "Update Log", Icon = "info" })
-updateTab:AddParagraph({
-    Title = "Details",
-    Content = "- English-Vietnam\n- Available on all clients\n- Dùng Được trên tất cả client\n- Android -IOS -PC\n- Support Vietnamese script for Vietnamese people\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt\n- Support tools\n- Hỗ Trợ các công cụ"
+-- Tùy chỉnh nút mở UI
+Window:EditOpenButton({
+    Title = "Open Lion-Hub",
+    Icon = "monitor",
+    CornerRadius = UDim.new(0, 10),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(
+        Color3.fromHex("FF0F7B"), 
+        Color3.fromHex("F89B29")
+    ),
+    Draggable = true,
 })
+
+-- Tạo các tab
+local Tabs = {
+    MainTab = Window:Tab({ Title = "Main", Icon = "home", Desc = "Main features and scripts." }),
+    UpdateTab = Window:Tab({ Title = "Update Log", Icon = "info", Desc = "Update information and details." }),
+}
+
+-- Chọn tab mặc định
+Window:SelectTab(1)
 
 -- Tab: Main
-local mainTab = Window:AddTab({ Title = "Main", Icon = "home" })
-mainTab:AddButton({
+Tabs.MainTab:Section({ Title = "Scripts" })
+
+Tabs.MainTab:Button({
     Title = "W-Azure",
-    Description = "Chạy script W-Azure",
+    Desc = "Run W-Azure script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/wazure.lua"))()
     end
 })
-mainTab:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Maru Hub",
-    Description = "Chạy script Maru Hub",
+    Desc = "Run Maru Hub script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/maru.lua"))()
     end
 })
-mainTab:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Banana Hub",
-    Description = "Chạy script Banana Hub",
+    Desc = "Run Banana Hub script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
     end
 })
-mainTab:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Blox Fruits Hub",
-    Description = "Chạy script Blox Fruits (main.lua)",
+    Desc = "Run Blox Fruits script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/refs/heads/main/main.lua"))()
     end
 })
 
--- Dropdown để đổi theme
-mainTab:AddDropdown({
+Tabs.MainTab:Section({ Title = "Theme Settings" })
+
+Tabs.MainTab:Dropdown({
     Title = "Change Theme",
-    Description = "Chọn theme cho giao diện",
-    Values = {"Dark", "Light", "Aqua", "Green", "Amethyst"},
-    Default = "Dark",
+    Values = { "Dark", "Light", "Aqua", "Green", "Amethyst" },
+    Value = "Dark",
     Callback = function(value)
-        Fluent.Options.Theme:SetValue(value)
-        Fluent:Notify({
+        WindUI:SetTheme(value)
+        Window:Notification({
             Title = "Lion-Hub",
-            Content = "Đã đổi theme thành " .. value,
+            Text = "Đã đổi theme thành " .. value,
             Duration = 3
         })
     end
+})
+
+-- Tab: Update Log
+Tabs.UpdateTab:Section({ Title = "Details" })
+
+Tabs.UpdateTab:Paragraph({
+    Title = "Details",
+    Text = "- English-Vietnam\n- Available on all clients\n- Dùng Được trên tất cả client\n- Android -IOS -PC\n- Support Vietnamese script for Vietnamese people\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt\n- Support tools\n- Hỗ Trợ các công cụ"
 })
 
 -- Tạo nút hình tròn để đóng/mở giao diện
@@ -111,25 +145,22 @@ end)
 -- Logic nút đóng/mở
 toggleButton.MouseButton1Click:Connect(function()
     uiEnabled = not uiEnabled
-    local fluentGui = Window.ScreenGui
-    if fluentGui then
-        fluentGui.Enabled = uiEnabled
+    local windGui = buttonGui.Parent:FindFirstChild("WindUI") -- Tìm GUI của WindUI
+    if windGui then
+        windGui.Enabled = uiEnabled
         updateButtonColor()
         print(uiEnabled and "UI đã được bật" or "UI đã được tắt")
     else
-        print("Không tìm thấy Fluent GUI!")
+        print("Không tìm thấy WindUI GUI!")
     end
 end)
 
 -- Đảm bảo nút luôn hiển thị trên cùng
 buttonGui.DisplayOrder = 10
 
--- Chọn tab mặc định
-updateTab:Select()
-
 -- Thông báo chào mừng
-Fluent:Notify({
+Window:Notification({
     Title = "Lion-Hub",
-    Content = "Chào mừng đến với Lion-Hub!",
+    Text = "Chào mừng đến với Lion-Hub!",
     Duration = 3
 })
