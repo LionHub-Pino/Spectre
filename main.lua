@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService") -- Thêm dịch vụ để kiểm tra thiết bị
+local UserInputService = game:GetService("UserInputService")
 
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
@@ -37,58 +37,66 @@ infoGui.Parent = playerGui
 infoGui.ResetOnSpawn = false
 
 -- Kiểm tra thiết bị
-local isMobile = UserInputService.TouchEnabled -- True nếu là thiết bị cảm ứng (mobile)
+local isMobile = UserInputService.TouchEnabled
 
--- Tạo Frame cho window FPS với giao diện khác nhau dựa trên thiết bị
+-- Tạo Frame cho window FPS với giao diện giống WindUI
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    -- Giao diện cho Mobile
-    infoFrame.Size = UDim2.new(0, 150, 0, 80) -- Kích thước nhỏ hơn cho mobile
-    infoFrame.Position = UDim2.new(0.5, -75, 0, 5) -- Đặt gần đỉnh màn hình
+    infoFrame.Size = UDim2.new(0, 150, 0, 80)
+    infoFrame.Position = UDim2.new(0.5, -75, 0, 5)
 else
-    -- Giao diện cho PC
-    infoFrame.Size = UDim2.new(0, 200, 0, 100) -- Kích thước lớn hơn cho PC
-    infoFrame.Position = UDim2.new(0.5, -100, 0, 10) -- Đặt ở giữa trên cùng
+    infoFrame.Size = UDim2.new(0, 200, 0, 100)
+    infoFrame.Position = UDim2.new(0.5, -100, 0, 10)
 end
-infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-infoFrame.BorderSizePixel = 0
+infoFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+infoFrame.BorderSizePixel = 1
+infoFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
 infoFrame.Parent = infoGui
 
 local infoCorner = Instance.new("UICorner")
-infoCorner.CornerRadius = UDim.new(0, 10)
+infoCorner.CornerRadius = UDim.new(0, 8)
 infoCorner.Parent = infoFrame
 
 -- Tạo TextLabel cho FPS
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, 0, 0, 30)
-fpsLabel.Position = UDim2.new(0, 0, 0, 5)
+fpsLabel.Size = UDim2.new(1, -10, 0, 30)
+fpsLabel.Position = UDim2.new(0, 5, 0, 5)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
 fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsLabel.TextSize = isMobile and 14 or 16 -- Nhỏ hơn trên mobile
-fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.TextSize = isMobile and 14 or 16
+fpsLabel.Font = Enum.Font.GothamBold
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
 fpsLabel.Parent = infoFrame
 
--- Tạo TextLabel cho User Name
+-- Tạo TextLabel cho User Name với hiệu ứng cầu vồng
 local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, 0, 0, 20)
-userLabel.Position = UDim2.new(0, 0, 0, 30)
+userLabel.Size = UDim2.new(1, -10, 0, 20)
+userLabel.Position = UDim2.new(0, 5, 0, 35)
 userLabel.BackgroundTransparency = 1
 userLabel.Text = "User: " .. player.Name
-userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-userLabel.TextSize = isMobile and 12 or 14 -- Nhỏ hơn trên mobile
-userLabel.Font = Enum.Font.SourceSans
+userLabel.TextSize = isMobile and 12 or 14
+userLabel.Font = Enum.Font.Gotham
+userLabel.TextXAlignment = Enum.TextXAlignment.Left
 userLabel.Parent = infoFrame
 
--- Tạo TextLabel cho dòng cảm ơn với hiệu ứng đánh máy
+-- Hiệu ứng cầu vồng cho User Name
+RunService.RenderStepped:Connect(function()
+    local hue = (tick() % 5) / 5 -- Tạo chu kỳ màu thay đổi trong 5 giây
+    local color = Color3.fromHSV(hue, 1, 1) -- Hue thay đổi, Saturation và Value max
+    userLabel.TextColor3 = color
+end)
+
+-- Tạo TextLabel cho dòng cảm ơn
 local thanksLabel = Instance.new("TextLabel")
-thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 50)
+thanksLabel.Size = UDim2.new(1, -10, 0, 30)
+thanksLabel.Position = UDim2.new(0, 5, 0, 55)
 thanksLabel.BackgroundTransparency = 1
 thanksLabel.Text = ""
-thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
-thanksLabel.TextSize = isMobile and 12 or 14 -- Nhỏ hơn trên mobile
-thanksLabel.Font = Enum.Font.SourceSansItalic
+thanksLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+thanksLabel.TextSize = isMobile and 12 or 14
+thanksLabel.Font = Enum.Font.GothamItalic
+thanksLabel.TextXAlignment = Enum.TextXAlignment.Left
 thanksLabel.Parent = infoFrame
 
 -- Hiệu ứng đánh máy cho dòng cảm ơn
@@ -130,6 +138,45 @@ RunService.RenderStepped:Connect(function()
         frameCount = 0
         lastTime = currentTime
     end
+end)
+
+-- Thời gian bắt đầu chạy UI
+local startTime = os.time()
+
+-- Tạo TextLabel cho giờ Việt Nam (trong Window)
+local vietnamTimeLabel = Instance.new("TextLabel")
+vietnamTimeLabel.Size = UDim2.new(0, 150, 0, 20)
+vietnamTimeLabel.Position = UDim2.new(1, -160, 0, 5) -- Đặt ở góc trên phải, dưới thanh title
+vietnamTimeLabel.BackgroundTransparency = 1
+vietnamTimeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+vietnamTimeLabel.TextSize = 14
+vietnamTimeLabel.Font = Enum.Font.Gotham
+vietnamTimeLabel.TextXAlignment = Enum.TextXAlignment.Right
+vietnamTimeLabel.Parent = Window:GetGUIRef() -- Gắn vào Window
+
+-- Tạo TextLabel cho thời gian hoạt động (trong Window)
+local timeWorkLabel = Instance.new("TextLabel")
+timeWorkLabel.Size = UDim2.new(0, 150, 0, 20)
+timeWorkLabel.Position = UDim2.new(1, -160, 0, 25) -- Đặt ngay dưới giờ Việt Nam
+timeWorkLabel.BackgroundTransparency = 1
+timeWorkLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+timeWorkLabel.TextSize = 14
+timeWorkLabel.Font = Enum.Font.Gotham
+timeWorkLabel.TextXAlignment = Enum.TextXAlignment.Right
+timeWorkLabel.Parent = Window:GetGUIRef()
+
+-- Cập nhật thời gian
+RunService.RenderStepped:Connect(function()
+    -- Giờ Việt Nam (UTC+7)
+    local vietnamTime = os.time() + 7 * 3600 -- Thêm 7 giờ từ UTC
+    vietnamTimeLabel.Text = "VN Time: " .. os.date("%H:%M:%S", vietnamTime)
+
+    -- Thời gian hoạt động
+    local elapsed = os.time() - startTime
+    local hours = math.floor(elapsed / 3600)
+    local minutes = math.floor((elapsed % 3600) / 60)
+    local seconds = elapsed % 60
+    timeWorkLabel.Text = string.format("Time Work: %02d:%02d:%02d", hours, minutes, seconds)
 end)
 
 -- Tùy chỉnh nút mở UI
@@ -177,7 +224,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 1",
     Desc = "Chạy script Banana Hub (Phiên bản 1)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
 })
 
@@ -185,7 +232,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 2",
     Desc = "Chạy script Banana Hub (Phiên bản 2)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
 })
 
@@ -193,7 +240,28 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 3",
     Desc = "Chạy script Banana Hub (Phiên bản 3)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana.lua"))()
+    end
+})
+
+Tabs.MainTab:Button({
+    Title = "All Executor Here",
+    Desc = "Sao chép link tải executor",
+    Callback = function()
+        if setclipboard then
+            setclipboard("https://lion-executor.pages.dev/")
+            Window:Notification({
+                Title = "Lion-Hub",
+                Text = "Đã sao chép link: https://lion-executor.pages.dev/",
+                Duration = 3
+            })
+        else
+            Window:Notification({
+                Title = "Lion-Hub",
+                Text = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/",
+                Duration = 5
+            })
+        end
     end
 })
 
