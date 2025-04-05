@@ -13,15 +13,15 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 170,
     HasOutline = true,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub" },
-        Note = "Nhập key chính xác để tiếp tục.",
-        SaveKey = true,
+        Key = { "pino_ontop", "LionHub" }, -- Thay đổi key thành pino_ontop và LionHub
+        Note = "Enter the correct key to proceed.",
+        SaveKey = true, -- Lưu key để không cần nhập lại
     },
 })
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Mở Lion-Hub",
+    Title = "Open Lion-Hub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -34,19 +34,19 @@ Window:EditOpenButton({
 
 -- Tạo các tab
 local Tabs = {
-    MainTab = Window:Tab({ Title = "Chính", Icon = "home", Desc = "Các tính năng chính và script." }),
-    UpdateTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "info", Desc = "Thông tin cập nhật và chi tiết." }),
+    MainTab = Window:Tab({ Title = "Main", Icon = "home", Desc = "Main features and scripts." }),
+    UpdateTab = Window:Tab({ Title = "Update Log", Icon = "info", Desc = "Update information and details." }),
 }
 
 -- Chọn tab mặc định
 Window:SelectTab(1)
 
--- Tab: Chính
-Tabs.MainTab:Section({ Title = "Script" })
+-- Tab: Main
+Tabs.MainTab:Section({ Title = "Scripts" })
 
 Tabs.MainTab:Button({
     Title = "W-Azure",
-    Desc = "Chạy script W-Azure",
+    Desc = "Run W-Azure script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/wazure.lua"))()
     end
@@ -54,7 +54,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Maru Hub",
-    Desc = "Chạy script Maru Hub",
+    Desc = "Run Maru Hub script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/maru.lua"))()
     end
@@ -62,74 +62,42 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Banana Hub",
-    Desc = "Chạy script Banana Hub",
+    Desc = "Run Banana Hub script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
     end
 })
 
 Tabs.MainTab:Button({
-    Title = "Server Discord Hỗ Trợ",
-    Desc = "Tham gia server Discord để được hỗ trợ",
+    Title = "Blox Fruits Hub",
+    Desc = "Run Blox Fruits script",
     Callback = function()
-        -- Mở link Discord
-        local HttpService = game:GetService("HttpService")
-        local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-        if request then
-            request({
-                Url = "http://127.0.0.1:6463/rpc?v=1",
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                    ["Origin"] = "https://discord.com"
-                },
-                Body = HttpService:JSONEncode({
-                    cmd = "INVITE_BROWSER",
-                    args = {
-                        code = "wmUmGVG6ut"
-                    },
-                    nonce = HttpService:GenerateGUID(false)
-                })
-            })
-        else
-            Window:Notification({
-                Title = "Lion-Hub",
-                Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
-                Duration = 5
-            })
-        end
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/refs/heads/main/main.lua"))()
     end
 })
 
-Tabs.MainTab:Section({ Title = "Cài Đặt Giao Diện" })
+Tabs.MainTab:Section({ Title = "Theme Settings" })
 
 Tabs.MainTab:Dropdown({
-    Title = "Đổi Giao Diện",
-    Values = { "Tối", "Sáng", "Xanh Nước Biển", "Xanh Lá", "Tím" },
-    Value = "Tối",
+    Title = "Change Theme",
+    Values = { "Dark", "Light", "Aqua", "Green", "Amethyst" },
+    Value = "Dark",
     Callback = function(value)
-        local themeMap = {
-            ["Tối"] = "Dark",
-            ["Sáng"] = "Light",
-            ["Xanh Nước Biển"] = "Aqua",
-            ["Xanh Lá"] = "Green",
-            ["Tím"] = "Amethyst"
-        }
-        WindUI:SetTheme(themeMap[value])
+        WindUI:SetTheme(value)
         Window:Notification({
             Title = "Lion-Hub",
-            Text = "Đã đổi giao diện thành " .. value,
+            Text = "Đã đổi theme thành " .. value,
             Duration = 3
         })
     end
 })
 
--- Tab: Nhật Ký Cập Nhật
-Tabs.UpdateTab:Section({ Title = "Chi Tiết" })
+-- Tab: Update Log
+Tabs.UpdateTab:Section({ Title = "Details" })
 
 Tabs.UpdateTab:Paragraph({
-    Title = "Chi Tiết",
-    Text = "- Tiếng Anh-Tiếng Việt\n- Có sẵn trên mọi client\n- Dùng Được trên tất cả client\n- Android - iOS - PC\n- Hỗ trợ script tiếng Việt cho người Việt\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt\n- Hỗ trợ các công cụ\n- Hỗ Trợ các công cụ\n- Và Update Mỗi Tuần"
+    Title = "Details",
+    Text = "- English-Vietnam\n- Available on all clients\n- Dùng Được trên tất cả client\n- Android -IOS -PC\n- Support Vietnamese script for Vietnamese people\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt\n- Support tools\n- Hỗ Trợ các công cụ"
 })
 
 -- Tạo nút hình tròn để đóng/mở giao diện
