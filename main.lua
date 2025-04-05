@@ -1,3 +1,7 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
@@ -66,8 +70,24 @@ Tabs.MainTab:Button({
 })
 
 Tabs.MainTab:Button({
-    Title = "Banana Hub",
-    Desc = "Chạy script Banana Hub",
+    Title = "Banana Hub 1",
+    Desc = "Chạy script Banana Hub (Phiên bản 1)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
+    end
+})
+
+Tabs.MainTab:Button({
+    Title = "Banana Hub 2",
+    Desc = "Chạy script Banana Hub (Phiên bản 2)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
+    end
+})
+
+Tabs.MainTab:Button({
+    Title = "Banana Hub 3",
+    Desc = "Chạy script Banana Hub (Phiên bản 3)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
     end
