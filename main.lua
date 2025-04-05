@@ -161,7 +161,7 @@ Tabs.MainTab:Button({
     Title = "W-Azure",
     Desc = "Chạy script W-Azure",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/wazure.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
     end
 })
 
@@ -169,7 +169,7 @@ Tabs.MainTab:Button({
     Title = "Maru Hub",
     Desc = "Chạy script Maru Hub",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/maru.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
     end
 })
 
@@ -177,7 +177,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 1",
     Desc = "Chạy script Banana Hub (Phiên bản 1)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana.lua"))()
     end
 })
 
