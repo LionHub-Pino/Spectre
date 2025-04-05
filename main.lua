@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService") -- Thêm dịch vụ để kiểm tra thiết bị
 
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
@@ -27,6 +29,108 @@ local Window = WindUI:CreateWindow({
         },
     },
 })
+
+-- Tạo một ScreenGui riêng cho FPS và User Name
+local infoGui = Instance.new("ScreenGui")
+infoGui.Name = "InfoGui"
+infoGui.Parent = playerGui
+infoGui.ResetOnSpawn = false
+
+-- Kiểm tra thiết bị
+local isMobile = UserInputService.TouchEnabled -- True nếu là thiết bị cảm ứng (mobile)
+
+-- Tạo Frame cho window FPS với giao diện khác nhau dựa trên thiết bị
+local infoFrame = Instance.new("Frame")
+if isMobile then
+    -- Giao diện cho Mobile
+    infoFrame.Size = UDim2.new(0, 150, 0, 80) -- Kích thước nhỏ hơn cho mobile
+    infoFrame.Position = UDim2.new(0.5, -75, 0, 5) -- Đặt gần đỉnh màn hình
+else
+    -- Giao diện cho PC
+    infoFrame.Size = UDim2.new(0, 200, 0, 100) -- Kích thước lớn hơn cho PC
+    infoFrame.Position = UDim2.new(0.5, -100, 0, 10) -- Đặt ở giữa trên cùng
+end
+infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+infoFrame.BorderSizePixel = 0
+infoFrame.Parent = infoGui
+
+local infoCorner = Instance.new("UICorner")
+infoCorner.CornerRadius = UDim.new(0, 10)
+infoCorner.Parent = infoFrame
+
+-- Tạo TextLabel cho FPS
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(1, 0, 0, 30)
+fpsLabel.Position = UDim2.new(0, 0, 0, 5)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Text = "FPS: 0"
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.TextSize = isMobile and 14 or 16 -- Nhỏ hơn trên mobile
+fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.Parent = infoFrame
+
+-- Tạo TextLabel cho User Name
+local userLabel = Instance.new("TextLabel")
+userLabel.Size = UDim2.new(1, 0, 0, 20)
+userLabel.Position = UDim2.new(0, 0, 0, 30)
+userLabel.BackgroundTransparency = 1
+userLabel.Text = "User: " .. player.Name
+userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+userLabel.TextSize = isMobile and 12 or 14 -- Nhỏ hơn trên mobile
+userLabel.Font = Enum.Font.SourceSans
+userLabel.Parent = infoFrame
+
+-- Tạo TextLabel cho dòng cảm ơn với hiệu ứng đánh máy
+local thanksLabel = Instance.new("TextLabel")
+thanksLabel.Size = UDim2.new(1, 0, 0, 30)
+thanksLabel.Position = UDim2.new(0, 0, 0, 50)
+thanksLabel.BackgroundTransparency = 1
+thanksLabel.Text = ""
+thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
+thanksLabel.TextSize = isMobile and 12 or 14 -- Nhỏ hơn trên mobile
+thanksLabel.Font = Enum.Font.SourceSansItalic
+thanksLabel.Parent = infoFrame
+
+-- Hiệu ứng đánh máy cho dòng cảm ơn
+local thanksText = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+local isTyping = true
+local currentIndex = 0
+
+spawn(function()
+    while true do
+        if isTyping then
+            currentIndex = currentIndex + 1
+            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
+            if currentIndex >= #thanksText then
+                isTyping = false
+                wait(1)
+            end
+        else
+            currentIndex = currentIndex - 1
+            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
+            if currentIndex <= 0 then
+                isTyping = true
+                wait(0.5)
+            end
+        end
+        wait(0.1)
+    end
+end)
+
+-- Cập nhật FPS
+local lastTime = tick()
+local frameCount = 0
+
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local currentTime = tick()
+    if currentTime - lastTime >= 1 then
+        local fps = math.floor(frameCount / (currentTime - lastTime))
+        fpsLabel.Text = "FPS: " .. fps
+        frameCount = 0
+        lastTime = currentTime
+    end
+end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
@@ -160,7 +264,7 @@ Tabs.NotificationTab:Button({
             Icon = "bell",
             Duration = 5,
         })
-        wait(5.1) -- Đợi thông báo trước biến mất
+        wait(5.1)
         WindUI:Notify({
             Title = "Nhật Ký Cập Nhật - Phần 2",
             Content = "- Android - iOS - PC\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt",
