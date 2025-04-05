@@ -9,9 +9,9 @@ local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindU
 
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "Lion-Hub",
+    Title = "Lion Hub",
     Icon = "door-open",
-    Author = "Pino_Azure",
+    Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳", -- Thêm lá cờ Việt Nam trước và sau
     Folder = "LionHubData",
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
@@ -19,18 +19,18 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub" },
+        Key = { "pino_ontop", "LionHub", "VietNam" },
         Note = "Nhập key chính xác để tiếp tục.",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
         Thumbnail = {
             Image = "rbxassetid://18220445082",
-            Title = "Lion-Hub Key System"
+            Title = "LionHub Key System"
         },
     },
 })
 
--- Tạo một ScreenGui riêng cho FPS và User Name
+-- Tạo một ScreenGui riêng cho FPS, User Name, và các thông tin khác
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -39,64 +39,143 @@ infoGui.ResetOnSpawn = false
 -- Kiểm tra thiết bị
 local isMobile = UserInputService.TouchEnabled
 
--- Tạo Frame cho window FPS với giao diện giống WindUI
+-- Tạo Frame cho window thông tin
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    infoFrame.Size = UDim2.new(0, 150, 0, 80)
-    infoFrame.Position = UDim2.new(0.5, -75, 0, 5)
+    infoFrame.Size = UDim2.new(0, 250, 0, 160)
+    infoFrame.Position = UDim2.new(0.5, -125, 0, 5)
 else
-    infoFrame.Size = UDim2.new(0, 200, 0, 100)
-    infoFrame.Position = UDim2.new(0.5, -100, 0, 10)
+    infoFrame.Size = UDim2.new(0, 300, 0, 180)
+    infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
 end
-infoFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-infoFrame.BorderSizePixel = 1
-infoFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
+infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+infoFrame.BorderSizePixel = 0
 infoFrame.Parent = infoGui
 
+-- Thêm tính năng kéo thả cho infoFrame
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+infoFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = infoFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+infoFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        infoFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
 local infoCorner = Instance.new("UICorner")
-infoCorner.CornerRadius = UDim.new(0, 8)
+infoCorner.CornerRadius = UDim.new(0, 10)
 infoCorner.Parent = infoFrame
+
+-- Tạo TextLabel cho dòng "Mừng 50 Năm Giải Phóng Đất Nước" kèm lá cờ Việt Nam
+local celebrationLabel = Instance.new("TextLabel")
+celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
+celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
+celebrationLabel.BackgroundTransparency = 1
+celebrationLabel.Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳"
+celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+celebrationLabel.TextSize = isMobile and 18 or 22
+celebrationLabel.Font = Enum.Font.SourceSansBold
+celebrationLabel.TextXAlignment = Enum.TextXAlignment.Center
+celebrationLabel.Parent = infoFrame
 
 -- Tạo TextLabel cho FPS
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, -10, 0, 30)
-fpsLabel.Position = UDim2.new(0, 5, 0, 5)
+fpsLabel.Size = UDim2.new(1, 0, 0, 20)
+fpsLabel.Position = UDim2.new(0, 0, 0, 45)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
 fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 fpsLabel.TextSize = isMobile and 14 or 16
-fpsLabel.Font = Enum.Font.GothamBold
-fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
+fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
 fpsLabel.Parent = infoFrame
 
--- Tạo TextLabel cho User Name với hiệu ứng cầu vồng
+-- Tạo TextLabel cho User Name
 local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, -10, 0, 20)
-userLabel.Position = UDim2.new(0, 5, 0, 35)
+userLabel.Size = UDim2.new(1, 0, 0, 20)
+userLabel.Position = UDim2.new(0, 0, 0, 65)
 userLabel.BackgroundTransparency = 1
 userLabel.Text = "User: " .. player.Name
+userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 userLabel.TextSize = isMobile and 12 or 14
-userLabel.Font = Enum.Font.Gotham
-userLabel.TextXAlignment = Enum.TextXAlignment.Left
+userLabel.Font = Enum.Font.SourceSans
+userLabel.TextXAlignment = Enum.TextXAlignment.Center
 userLabel.Parent = infoFrame
 
--- Hiệu ứng cầu vồng cho User Name
-RunService.RenderStepped:Connect(function()
-    local hue = (tick() % 5) / 5
-    local color = Color3.fromHSV(hue, 1, 1)
-    userLabel.TextColor3 = color
-end)
+-- Tạo TextLabel cho ngày, tháng, năm Việt Nam
+local vietnamDateLabel = Instance.new("TextLabel")
+vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
+vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
+vietnamDateLabel.BackgroundTransparency = 1
+vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
+vietnamDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+vietnamDateLabel.TextSize = isMobile and 12 or 14
+vietnamDateLabel.Font = Enum.Font.SourceSans
+vietnamDateLabel.TextXAlignment = Enum.TextXAlignment.Center
+vietnamDateLabel.Parent = infoFrame
 
--- Tạo TextLabel cho dòng cảm ơn
+-- Tạo TextLabel cho Executor
+local executorLabel = Instance.new("TextLabel")
+executorLabel.Size = UDim2.new(1, 0, 0, 20)
+executorLabel.Position = UDim2.new(0, 0, 0, 105)
+executorLabel.BackgroundTransparency = 1
+local executorName = "Unknown"
+if syn then
+    executorName = "Synapse X"
+elseif fluxus then
+    executorName = "Fluxus"
+elseif krnl then
+    executorName = "Krnl"
+elseif delta then
+    executorName = "Delta"
+elseif getexecutorname then
+    executorName = getexecutorname()
+end
+executorLabel.Text = "Executor: " .. executorName
+executorLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+executorLabel.TextSize = isMobile and 12 or 14
+executorLabel.Font = Enum.Font.SourceSans
+executorLabel.TextXAlignment = Enum.TextXAlignment.Center
+executorLabel.Parent = infoFrame
+
+-- Tạo TextLabel cho dòng cảm ơn với hiệu ứng đánh máy
 local thanksLabel = Instance.new("TextLabel")
-thanksLabel.Size = UDim2.new(1, -10, 0, 30)
-thanksLabel.Position = UDim2.new(0, 5, 0, 55)
+thanksLabel.Size = UDim2.new(1, 0, 0, 30)
+thanksLabel.Position = UDim2.new(0, 0, 0, 125)
 thanksLabel.BackgroundTransparency = 1
 thanksLabel.Text = ""
-thanksLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
 thanksLabel.TextSize = isMobile and 12 or 14
-thanksLabel.Font = Enum.Font.GothamItalic
-thanksLabel.TextXAlignment = Enum.TextXAlignment.Left
+thanksLabel.Font = Enum.Font.SourceSansItalic
+thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
 thanksLabel.Parent = infoFrame
 
 -- Hiệu ứng đánh máy cho dòng cảm ơn
@@ -125,11 +204,12 @@ spawn(function()
     end
 end)
 
--- Cập nhật FPS
+-- Cập nhật FPS và ngày, tháng, năm Việt Nam
 local lastTime = tick()
 local frameCount = 0
 
 RunService.RenderStepped:Connect(function()
+    -- Cập nhật FPS
     frameCount = frameCount + 1
     local currentTime = tick()
     if currentTime - lastTime >= 1 then
@@ -138,48 +218,14 @@ RunService.RenderStepped:Connect(function()
         frameCount = 0
         lastTime = currentTime
     end
-end)
 
--- Thời gian bắt đầu chạy UI
-local startTime = os.time()
-
--- Tạo TextLabel cho giờ Việt Nam (trong Window)
-local vietnamTimeLabel = Instance.new("TextLabel")
-vietnamTimeLabel.Size = UDim2.new(0, 150, 0, 20)
-vietnamTimeLabel.Position = UDim2.new(1, -160, 0, 5)
-vietnamTimeLabel.BackgroundTransparency = 1
-vietnamTimeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-vietnamTimeLabel.TextSize = 14
-vietnamTimeLabel.Font = Enum.Font.Gotham
-vietnamTimeLabel.TextXAlignment = Enum.TextXAlignment.Right
-vietnamTimeLabel.Parent = Window:GetGUIRef()
-
--- Tạo TextLabel cho thời gian hoạt động (trong Window)
-local timeWorkLabel = Instance.new("TextLabel")
-timeWorkLabel.Size = UDim2.new(0, 150, 0, 20)
-timeWorkLabel.Position = UDim2.new(1, -160, 0, 25)
-timeWorkLabel.BackgroundTransparency = 1
-timeWorkLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-timeWorkLabel.TextSize = 14
-timeWorkLabel.Font = Enum.Font.Gotham
-timeWorkLabel.TextXAlignment = Enum.TextXAlignment.Right
-timeWorkLabel.Parent = Window:GetGUIRef()
-
--- Cập nhật thời gian
-RunService.RenderStepped:Connect(function()
-    local vietnamTime = os.time() + 7 * 3600
-    vietnamTimeLabel.Text = "VN Time: " .. os.date("%H:%M:%S", vietnamTime)
-
-    local elapsed = os.time() - startTime
-    local hours = math.floor(elapsed / 3600)
-    local minutes = math.floor((elapsed % 3600) / 60)
-    local seconds = elapsed % 60
-    timeWorkLabel.Text = string.format("Time Work: %02d:%02d:%02d", hours, minutes, seconds)
+    -- Cập nhật ngày, tháng, năm Việt Nam
+    vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Mở Lion-Hub",
+    Title = "Mở LionHub", -- Đổi "Mở Lion-Hub" thành "Mở LionHub"
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -194,7 +240,7 @@ Window:EditOpenButton({
 local Tabs = {
     MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
     KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
-    MainTab = Window:Tab({ Title = "Chính", Icon = "home", Desc = "Các tính năng chính và script." }),
+    MainTab = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Các tính năng chính và script." }),
     NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
 }
 
@@ -239,7 +285,7 @@ Tabs.KaitunTab:Button({
     end
 })
 
--- Tab: Chính
+-- Tab: Main
 Tabs.MainTab:Section({ Title = "Script" })
 
 Tabs.MainTab:Button({
@@ -289,13 +335,13 @@ Tabs.MainTab:Button({
         if setclipboard then
             setclipboard("https://lion-executor.pages.dev/")
             Window:Notification({
-                Title = "Lion-Hub",
+                Title = "LionHub", -- Đổi "Lion-Hub" thành "LionHub"
                 Text = "Đã sao chép link: https://lion-executor.pages.dev/",
                 Duration = 3
             })
         else
             Window:Notification({
-                Title = "Lion-Hub",
+                Title = "LionHub",
                 Text = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/",
                 Duration = 5
             })
@@ -327,7 +373,7 @@ Tabs.MainTab:Button({
             })
         else
             Window:Notification({
-                Title = "Lion-Hub",
+                Title = "LionHub",
                 Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
                 Duration = 5
             })
@@ -351,7 +397,7 @@ Tabs.MainTab:Dropdown({
         }
         WindUI:SetTheme(themeMap[value])
         Window:Notification({
-            Title = "Lion-Hub",
+            Title = "LionHub",
             Text = "Đã đổi giao diện thành " .. value,
             Duration = 3
         })
