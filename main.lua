@@ -140,7 +140,7 @@ if script_key == "pino_ontop" or script_key == "LionHub" then
         Duration = 3
     })
 else
-    -- Tạo nút hình tròn thông báo lỗi
+    -- Tạo thông báo lỗi giống Codex Android
     local Players = game:GetService("Players")
     local player = Players.LocalPlayer
     local playerGui = player:WaitForChild("PlayerGui")
@@ -148,21 +148,25 @@ else
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = playerGui
 
-    local errorButton = Instance.new("TextButton")
-    errorButton.Size = UDim2.new(0, 100, 0, 100) -- Kích thước hình tròn (100x100)
-    errorButton.Position = UDim2.new(0.5, -50, 0.5, -50) -- Chính giữa màn hình
-    errorButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ
-    errorButton.Text = "Key sai!" -- Chữ trên nút
-    errorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    errorButton.TextSize = 16
-    errorButton.BorderSizePixel = 0
+    -- Tạo khung nền mờ
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.Position = UDim2.new(0, 0, 0, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.5 -- Nền mờ
+    frame.Parent = screenGui
 
-    -- Làm nút thành hình tròn
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(1, 0) -- Bo tròn hoàn toàn (hình tròn)
-    corner.Parent = errorButton
-
-    errorButton.Parent = screenGui
+    -- Tạo TextLabel cho thông báo
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(0, 300, 0, 100)
+    textLabel.Position = UDim2.new(0.5, -150, 0.5, -50)
+    textLabel.BackgroundTransparency = 1 -- Không có nền
+    textLabel.Text = "Key Sai!\nVui lòng nhập đúng key."
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Chữ trắng
+    textLabel.TextSize = 24
+    textLabel.TextWrapped = true
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.Parent = frame
 
     -- Tự động xóa sau 3 giây
     wait(3)
