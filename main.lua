@@ -185,7 +185,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 2",
     Desc = "Chạy script Banana Hub (Phiên bản 2)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
 })
 
@@ -193,7 +193,7 @@ Tabs.MainTab:Button({
     Title = "Banana Hub 3",
     Desc = "Chạy script Banana Hub (Phiên bản 3)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tulathangngu/Vietnam/main/banana.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
 })
 
