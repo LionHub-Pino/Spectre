@@ -1,9 +1,258 @@
+local service = 3217 -- Thay bằng Platoboost ID của bạn
+local secret = "b4fc504c-13ea-4c85-b632-0e9419ddf993" -- Thay bằng Platoboost API key của bạn
+local useNonce = true
+
+-- Callback để hiển thị thông báo
+local onMessage = function(message)
+    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", { Text = message })
+end
+
+-- Chờ game load
+repeat task.wait(1) until game:IsLoaded()
+
+-- Các hàm cơ bản
+local requestSending = false
+local fSetClipboard, fRequest, fStringChar, fToString, fStringSub, fOsTime, fMathRandom, fMathFloor, fGetHwid = setclipboard or toclipboard, request or http_request or syn_request, string.char, tostring, string.sub, os.time, math.random, math.floor, gethwid or function() return game:GetService("Players").LocalPlayer.UserId end
+local cachedLink, cachedTime = "", 0
+local HttpService = game:GetService("HttpService")
+
+-- Hàm JSON và Digest từ Platoboost
+function lEncode(data)
+    return HttpService:JSONEncode(data)
+end
+function lDecode(data)
+    return HttpService:JSONDecode(data)
+end
+local function lDigest(input)
+    local inputStr = tostring(input)
+    local hash = {}
+    for i = 1, #inputStr do
+        table.insert(hash, string.byte(inputStr, i))
+    end
+    local hashHex = ""
+    for _, byte in ipairs(hash) do
+        hashHex = hashHex .. string.format("%02x", byte)
+    end
+    return hashHex
+end
+
+-- Chọn host
+local host = "https://api.platoboost.com"
+local hostResponse = fRequest({
+    Url = host .. "/public/connectivity",
+    Method = "GET"
+})
+if hostResponse.StatusCode ~= 200 or hostResponse.StatusCode ~= 429 then
+    host = "https://api.platoboost.net"
+end
+
+function cacheLink()
+    if cachedTime + (10*60) < fOsTime() then
+        local response = fRequest({
+            Url = host .. "/public/start",
+            Method = "POST",
+            Body = lEncode({
+                service = service,
+                identifier = lDigest(fGetHwid())
+            }),
+            Headers = {
+                ["Content-Type"] = "application/json"
+            }
+        })
+        if response.StatusCode == 200 then
+            local decoded = lDecode(response.Body)
+            if decoded.success == true then
+                cachedLink = decoded.data.url
+                cachedTime = fOsTime()
+                return true, cachedLink
+            else
+                onMessage(decoded.message)
+                return false, decoded.message
+            end
+        elseif response.StatusCode == 429 then
+            local msg = "you are being rate limited, please wait 20 seconds and try again."
+            onMessage(msg)
+            return false, msg
+        end
+        local msg = "Failed to cache link."
+        onMessage(msg)
+        return false, msg
+    else
+        return true, cachedLink
+    end
+end
+
+cacheLink()
+
+local generateNonce = function()
+    local str = ""
+    for _ = 1, 16 do
+        str = str .. fStringChar(fMathFloor(fMathRandom() * (122 - 97 + 1)) + 97)
+    end
+    return str
+end
+
+for _ = 1, 5 do
+    local oNonce = generateNonce()
+    task.wait(0.2)
+    if generateNonce() == oNonce then
+        local msg = "platoboost nonce error."
+        onMessage(msg)
+        error(msg)
+    end
+end
+
+local copyLink = function()
+    local success, link = cacheLink()
+    if success then
+        fSetClipboard(link)
+    end
+end
+
+local redeemKey = function(key)
+    local nonce = generateNonce()
+    local endpoint = host .. "/public/redeem/" .. fToString(service)
+    local body = {
+        identifier = lDigest(fGetHwid()),
+        key = key
+    }
+    if useNonce then
+        body.nonce = nonce
+    end
+    local response = fRequest({
+        Url = endpoint,
+        Method = "POST",
+        Body = lEncode(body),
+        Headers = {
+            ["Content-Type"] = "application/json"
+        }
+    })
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body)
+        if decoded.success == true then
+            if decoded.data.valid == true then
+                if useNonce then
+                    if decoded.data.hash == lDigest("true" .. "-" .. nonce .. "-" .. secret) then
+                        return true
+                    else
+                        onMessage("failed to verify integrity.")
+                        return false
+                    end    
+                else
+                    return true
+                end
+            else
+                onMessage("key is invalid.")
+                return false
+            end
+        else
+            if fStringSub(decoded.message, 1, 27) == "unique constraint violation" then
+                onMessage("you already have an active key, please wait for it to expire before redeeming it.")
+                return false
+            else
+                onMessage(decoded.message)
+                return false
+            end
+        end
+    elseif response.StatusCode == 429 then
+        onMessage("you are being rate limited, please wait 20 seconds and try again.")
+        return false
+    else
+        onMessage("server returned an invalid status code, please try again later.")
+        return false 
+    end
+end
+
+local verifyKey = function(key)
+    if requestSending == true then
+        onMessage("a request is already being sent, please slow down.")
+        return false
+    else
+        requestSending = true
+    end
+    local nonce = generateNonce()
+    local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. lDigest(fGetHwid()) .. "&key=" .. key
+    if useNonce then
+        endpoint = endpoint .. "&nonce=" .. nonce
+    end
+    local response = fRequest({
+        Url = endpoint,
+        Method = "GET",
+    })
+    requestSending = false
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body)
+        if decoded.success == true then
+            if decoded.data.valid == true then
+                if useNonce then
+                    if decoded.data.hash == lDigest("true" .. "-" .. nonce .. "-" .. secret) then
+                        return true
+                    else
+                        onMessage("failed to verify integrity.")
+                        return false
+                    end
+                else
+                    return true
+                end
+            else
+                if fStringSub(key, 1, 4) == "KEY_" then
+                    return redeemKey(key)
+                else
+                    onMessage("key is invalid.")
+                    return false
+                end
+            end
+        else
+            onMessage(decoded.message)
+            return false
+        end
+    elseif response.StatusCode == 429 then
+        onMessage("you are being rate limited, please wait 20 seconds and try again.")
+        return false
+    else
+        onMessage("server returned an invalid status code, please try again later.")
+        return false
+    end
+end
+
+local getFlag = function(name)
+    local nonce = generateNonce()
+    local endpoint = host .. "/public/flag/" .. fToString(service) .. "?name=" .. name
+    if useNonce then
+        endpoint = endpoint .. "&nonce=" .. nonce
+    end
+    local response = fRequest({
+        Url = endpoint,
+        Method = "GET",
+    })
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body)
+        if decoded.success == true then
+            if useNonce then
+                if decoded.data.hash == lDigest(fToString(decoded.data.value) .. "-" .. nonce .. "-" .. secret) then
+                    return decoded.data.value
+                else
+                    onMessage("failed to verify integrity.")
+                    return nil
+                end
+            else
+                return decoded.data.value
+            end
+        else
+            onMessage(decoded.message)
+            return nil
+        end
+    else
+        return nil
+    end
+end
+
+-- Bắt đầu script WindUI
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
 
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
@@ -22,7 +271,7 @@ end
 -- Thời gian bắt đầu để tính thời gian UI hiển thị
 local startTime = tick()
 
--- Tạo cửa sổ WindUI với key system tích hợp
+-- Tạo cửa sổ WindUI với key system
 local Window = WindUI:CreateWindow({
     Title = "Lion Hub 🇻🇳",
     Icon = "door-open",
@@ -34,8 +283,8 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub", "VietNam" },
-        Note = "Nhập key chính xác để tiếp tục.",
+        Key = { "" }, -- Không cần key mẫu
+        Note = "Nhập key từ Platoboost để tiếp tục",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
         Thumbnail = {
@@ -44,6 +293,35 @@ local Window = WindUI:CreateWindow({
         },
     },
 })
+
+-- Ghi đè logic kiểm tra key của WindUI bằng Platoboost
+local function overrideKeyCheck()
+    local keyFrame = playerGui:WaitForChild("WindUI"):WaitForChild("KeySystem")
+    local keyInput = keyFrame:WaitForChild("KeyInput")
+    local submitButton = keyFrame:WaitForChild("SubmitButton")
+    local statusLabel = keyFrame:WaitForChild("StatusLabel")
+
+    submitButton.MouseButton1Click:Connect(function()
+        local enteredKey = keyInput.Text
+        local success = verifyKey(enteredKey)
+        if success then
+            statusLabel.Text = "Key hợp lệ! Đang tải UI..."
+            statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            task.wait(1)
+            keyFrame.Visible = false
+            Window.MainFrame.Visible = true
+            if WindUI.Config.KeySystem.SaveKey then
+                local keyFile = WindUI.Config.Folder .. "/SavedKey.txt"
+                writefile(keyFile, enteredKey)
+            end
+        else
+            statusLabel.Text = "Key không hợp lệ hoặc lỗi server!"
+            statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        end
+    end)
+end
+
+spawn(overrideKeyCheck)
 
 -- Hàm định dạng thời gian thành "phút giây"
 local function formatTime(seconds)
@@ -101,7 +379,6 @@ local function sendWebhook()
     end
 end
 
--- Gửi webhook ngay sau khi UI được tải
 spawn(function()
     sendWebhook()
 end)
@@ -136,7 +413,6 @@ infoFrame.InputBegan:Connect(function(input)
         dragging = true
         dragStart = input.Position
         startPos = infoFrame.Position
-
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -306,7 +582,7 @@ Window:EditOpenButton({
     Draggable = true,
 })
 
--- Tạo các tab (không có ConsoleTab)
+-- Tạo các tab
 local Tabs = {
     MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
     KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
@@ -314,12 +590,10 @@ local Tabs = {
     NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
 }
 
--- Chọn tab mặc định
 Window:SelectTab(1)
 
 -- Tab: MainHub
 Tabs.MainHubTab:Section({ Title = "MainHub Script" })
-
 Tabs.MainHubTab:Button({
     Title = "MainHub",
     Desc = "Chạy script MainHub",
@@ -330,7 +604,6 @@ Tabs.MainHubTab:Button({
 
 -- Tab: Kaitun
 Tabs.KaitunTab:Section({ Title = "Kaitun Scripts" })
-
 Tabs.KaitunTab:Button({
     Title = "Kaitun",
     Desc = "Chạy script Kaitun",
@@ -338,7 +611,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunDF",
     Desc = "Chạy script KaitunDF",
@@ -346,7 +618,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "Marukaitun",
     Desc = "Chạy script Marukaitun-Mobile",
@@ -354,7 +625,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunFisch",
     Desc = "Chạy script KaitunFisch",
@@ -362,7 +632,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunAd",
     Desc = "Chạy script KaitunAd",
@@ -370,7 +639,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunKI",
     Desc = "Chạy script KaitunKI",
@@ -378,7 +646,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunAR",
     Desc = "Chạy script Kaitunar",
@@ -386,7 +653,6 @@ Tabs.KaitunTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
     end
 })
-
 Tabs.KaitunTab:Button({
     Title = "KaitunAV",
     Desc = "Chạy script KaitunAV",
@@ -397,7 +663,6 @@ Tabs.KaitunTab:Button({
 
 -- Tab: Main
 Tabs.MainTab:Section({ Title = "Script" })
-
 Tabs.MainTab:Button({
     Title = "W-Azure",
     Desc = "Chạy script W-Azure",
@@ -405,7 +670,6 @@ Tabs.MainTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
     end
 })
-
 Tabs.MainTab:Button({
     Title = "Maru Hub",
     Desc = "Chạy script Maru Hub-Mobile",
@@ -413,7 +677,6 @@ Tabs.MainTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
     end
 })
-
 Tabs.MainTab:Button({
     Title = "Banana Hub 1",
     Desc = "Chạy script Banana Hub (Phiên bản 1)",
@@ -421,7 +684,6 @@ Tabs.MainTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
 })
-
 Tabs.MainTab:Button({
     Title = "Banana Hub 2",
     Desc = "Chạy script Banana Hub (Phiên bản 2)",
@@ -429,7 +691,6 @@ Tabs.MainTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
 })
-
 Tabs.MainTab:Button({
     Title = "Banana Hub 3",
     Desc = "Chạy script Banana Hub (Phiên bản 3)",
@@ -437,7 +698,6 @@ Tabs.MainTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
     end
 })
-
 Tabs.MainTab:Button({
     Title = "All Executor Here",
     Desc = "Sao chép link tải executor",
@@ -458,7 +718,6 @@ Tabs.MainTab:Button({
         end
     end
 })
-
 Tabs.MainTab:Button({
     Title = "Server Discord Hỗ Trợ",
     Desc = "Tham gia server Discord để được hỗ trợ",
@@ -489,9 +748,7 @@ Tabs.MainTab:Button({
         end
     end
 })
-
 Tabs.MainTab:Section({ Title = "Cài Đặt Giao Diện" })
-
 Tabs.MainTab:Dropdown({
     Title = "Đổi Giao Diện",
     Values = { "Tối", "Sáng", "Xanh Nước Biển", "Xanh Lá", "Tím" },
@@ -515,7 +772,6 @@ Tabs.MainTab:Dropdown({
 
 -- Tab: Nhật Ký Cập Nhật
 Tabs.NotificationTab:Section({ Title = "Thông Tin Cập Nhật" })
-
 Tabs.NotificationTab:Button({
     Title = "Xem Nhật Ký Cập Nhật",
     Callback = function() 
