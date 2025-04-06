@@ -24,7 +24,7 @@ local startTime = tick()
 
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "LionHub",
+    Title = "Lion Hub 🇻🇳",
     Icon = "door-open",
     Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
     Folder = "LionHubData",
