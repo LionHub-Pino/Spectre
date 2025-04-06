@@ -106,7 +106,9 @@ local copyLink = function()
     local success, link = cacheLink()
     if success then
         fSetClipboard(link)
+        return true, link
     end
+    return false
 end
 
 local redeemKey = function(key)
@@ -285,7 +287,7 @@ local Window = WindUI:CreateWindow({
     KeySystem = { 
         Key = { "" }, -- Không cần key mẫu
         Note = "Nhập key từ Platoboost để tiếp tục",
-        URL = "https://discord.gg/wmUmGVG6ut",
+        URL = "", -- Để trống để không mở link mặc định
         SaveKey = true,
         Thumbnail = {
             Image = thumbnailImage,
@@ -294,13 +296,15 @@ local Window = WindUI:CreateWindow({
     },
 })
 
--- Ghi đè logic kiểm tra key của WindUI bằng Platoboost
-local function overrideKeyCheck()
+-- Ghi đè logic kiểm tra key và nút Get Key của WindUI
+local function overrideKeySystem()
     local keyFrame = playerGui:WaitForChild("WindUI"):WaitForChild("KeySystem")
     local keyInput = keyFrame:WaitForChild("KeyInput")
     local submitButton = keyFrame:WaitForChild("SubmitButton")
     local statusLabel = keyFrame:WaitForChild("StatusLabel")
+    local getKeyButton = keyFrame:WaitForChild("GetKeyButton") -- Tìm nút Get Key
 
+    -- Ghi đè logic kiểm tra key
     submitButton.MouseButton1Click:Connect(function()
         local enteredKey = keyInput.Text
         local success = verifyKey(enteredKey)
@@ -319,9 +323,26 @@ local function overrideKeyCheck()
             statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
         end
     end)
+
+    -- Ghi đè nút Get Key để sao chép link từ Platoboost
+    getKeyButton.MouseButton1Click:Connect(function()
+        local success, link = copyLink()
+        if success then
+            statusLabel.Text = "Đã sao chép link key vào clipboard!"
+            statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            WindUI:Notify({
+                Title = "Lion Hub",
+                Content = "Link key đã được sao chép: " .. link,
+                Duration = 5
+            })
+        else
+            statusLabel.Text = "Không thể lấy link key!"
+            statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        end
+    end)
 end
 
-spawn(overrideKeyCheck)
+spawn(overrideKeySystem)
 
 -- Hàm định dạng thời gian thành "phút giây"
 local function formatTime(seconds)
