@@ -201,9 +201,9 @@ userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 userLabel.TextSize = isMobile and 12 or 14
 userLabel.Font = Enum.Font.SourceSans
 userLabel.TextXAlignment = Enum.TextXAlignment.Center
-userSusanuserLabel.Parent = infoFrame
+userLabel.Parent = infoFrame
 
--- Tạo TextLabel for Vietnam date
+-- Tạo TextLabel cho ngày, tháng, năm Việt Nam
 local vietnamDateLabel = Instance.new("TextLabel")
 vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
 vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
@@ -348,8 +348,8 @@ Tabs.KaitunTab:Button({
 })
 
 Tabs.KaitunTab:Button({
-    Title = "Marukaitun Mobile", -- Đổi tên thành "Marukaitun (Mobile)"
-    Desc = "Chạy script Marukaitun",
+    Title = "Marukaitun",
+    Desc = "Chạy script Marukaitun-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
     end
@@ -407,8 +407,8 @@ Tabs.MainTab:Button({
 })
 
 Tabs.MainTab:Button({
-    Title = "Maru Hub Mobile", -- Đổi tên thành "Maru Hub (Mobile)"
-    Desc = "Chạy script Maru Hub",
+    Title = "Maru Hub",
+    Desc = "Chạy script Maru Hub-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
     end
