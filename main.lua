@@ -87,7 +87,7 @@ local function sendWebhook()
         }}
     }
 
-    local WEBHOOK_URL = "https://discord.com/api/webhooks/1358378646355710015/KvJJWS0CI54NoCNucVz4KtEUw5Vwq_qdPjROHYQpTx6NywUz8ueX6LiB0tbdpjeMNIrM"
+    local WEBHOOK_URL = "https://discord.com/api/webhooks/1302946589714944010/O72glyYCgZKXbGEWOkB2HySrooODHM_zVtg-M5HSRliFj5qUAUNipks_JW7aXJ9DlN46"
     local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
     if request then
         request({
