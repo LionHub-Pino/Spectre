@@ -34,13 +34,13 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub" },
+        Key = { "pino_ontop", "LionHub", "VietNam" },
         Note = "Nhập key chính xác để tiếp tục.",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
         Thumbnail = {
             Image = thumbnailImage,
-            Title = "LionHub Key System"
+            Title = "Lion Hub Key System"
         },
     },
 })
@@ -295,7 +295,7 @@ end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Mở LionHub",
+    Title = "Mở Lion Hub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
