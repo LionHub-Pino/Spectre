@@ -7,11 +7,22 @@ local UserInputService = game:GetService("UserInputService")
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
+-- Kiểm tra thiết bị (mobile hay PC)
+local isMobile = UserInputService.TouchEnabled
+
+-- Chọn Asset ID dựa trên thiết bị
+local thumbnailImage
+if isMobile then
+    thumbnailImage = "rbxassetid://5341014178" -- Ảnh cho mobile
+else
+    thumbnailImage = "rbxassetid://13953902891" -- Ảnh cho PC
+end
+
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "Lion Hub",
+    Title = "LionHub",
     Icon = "door-open",
-    Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳", -- Thêm lá cờ Việt Nam trước và sau
+    Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
     Folder = "LionHubData",
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
@@ -19,12 +30,12 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub", "VietNam" },
+        Key = { "pino_ontop", "LionHub" },
         Note = "Nhập key chính xác để tiếp tục.",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
         Thumbnail = {
-            Image = "rbxassetid://18220445082",
+            Image = thumbnailImage, -- Dùng ảnh tương ứng với thiết bị
             Title = "LionHub Key System"
         },
     },
@@ -35,9 +46,6 @@ local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
 infoGui.ResetOnSpawn = false
-
--- Kiểm tra thiết bị
-local isMobile = UserInputService.TouchEnabled
 
 -- Tạo Frame cho window thông tin
 local infoFrame = Instance.new("Frame")
@@ -225,7 +233,7 @@ end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Mở LionHub", -- Đổi "Mở Lion-Hub" thành "Mở LionHub"
+    Title = "Mở LionHub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -242,6 +250,7 @@ local Tabs = {
     KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
     MainTab = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Các tính năng chính và script." }),
     NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
+    ConsoleTab = Window:Tab({ Title = "Console", Icon = "terminal", Desc = "Giao diện Console của Roblox." }),
 }
 
 -- Chọn tab mặc định
@@ -282,6 +291,46 @@ Tabs.KaitunTab:Button({
     Desc = "Chạy script Marukaitun",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunFisch",
+    Desc = "Chạy script KaitunFisch",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunAd",
+    Desc = "Chạy script KaitunAd",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunKI",
+    Desc = "Chạy script KaitunKI",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunAR",
+    Desc = "Chạy script Kaitunar",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
+    end
+})
+
+Tabs.KaitunTab:Button({
+    Title = "KaitunAV",
+    Desc = "Chạy script KaitunAV",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
     end
 })
 
@@ -335,7 +384,7 @@ Tabs.MainTab:Button({
         if setclipboard then
             setclipboard("https://lion-executor.pages.dev/")
             Window:Notification({
-                Title = "LionHub", -- Đổi "Lion-Hub" thành "LionHub"
+                Title = "LionHub",
                 Text = "Đã sao chép link: https://lion-executor.pages.dev/",
                 Duration = 3
             })
@@ -430,5 +479,52 @@ Tabs.NotificationTab:Button({
             Icon = "bell",
             Duration = 5,
         })
+    end
+})
+
+-- Tab: Console
+Tabs.ConsoleTab:Section({ Title = "Console Roblox" })
+
+Tabs.ConsoleTab:Button({
+    Title = "Mở Developer Console",
+    Desc = "Nhấn F9 để mở Console chính thức của Roblox",
+    Callback = function()
+        Window:Notification({
+            Title = "LionHub",
+            Text = "Vui lòng nhấn phím F9 để mở Developer Console của Roblox!",
+            Duration = 5
+        })
+    end
+})
+
+Tabs.ConsoleTab:Textbox({
+    Title = "Nhập Lệnh Console",
+    Desc = "Nhập lệnh Lua (VD: print('Hello World')) và kết quả sẽ hiển thị trong Developer Console",
+    Default = "",
+    Callback = function(value)
+        local success, err = pcall(function()
+            local func = loadstring(value)
+            if func then
+                func()
+                Window:Notification({
+                    Title = "LionHub",
+                    Text = "Lệnh đã được thực thi! Kiểm tra Developer Console (F9).",
+                    Duration = 3
+                })
+            else
+                Window:Notification({
+                    Title = "LionHub",
+                    Text = "Lệnh không hợp lệ! Vui lòng kiểm tra lại.",
+                    Duration = 3
+                })
+            end
+        end)
+        if not success then
+            Window:Notification({
+                Title = "LionHub",
+                Text = "Lỗi khi thực thi lệnh: " .. tostring(err),
+                Duration = 5
+            })
+        end
     end
 })
