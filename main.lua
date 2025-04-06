@@ -22,29 +22,9 @@ end
 -- Thời gian bắt đầu để tính thời gian UI hiển thị
 local startTime = tick()
 
--- Hàm tải key từ server
-local function fetchKeys()
-    local success, response = pcall(function()
-        return game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/key.txt")
-    end)
-    if success then
-        local keys = {}
-        for key in response:gmatch("[^\n]+") do
-            table.insert(keys, key)
-        end
-        return keys
-    else
-        -- Key mặc định nếu không tải được (nên thay bằng key giả hoặc thông báo lỗi)
-        return { "pino_ontop", "LionHub" }
-    end
-end
-
--- Lấy key từ server
-local keys = fetchKeys()
-
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "🇻🇳 Lion Hub 🇻🇳",
+    Title = "Lion Hub 🇻🇳",
     Icon = "door-open",
     Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
     Folder = "LionHubData",
@@ -54,13 +34,13 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = keys, -- Sử dụng key tải từ server
+        Key = { "pino_ontop", "LionHub", "VietNam" },
         Note = "Nhập key chính xác để tiếp tục.",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
         Thumbnail = {
             Image = thumbnailImage,
-            Title = "LionHub Key System"
+            Title = "Lion Hub Key System"
         },
     },
 })
@@ -315,7 +295,7 @@ end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "Mở 🇻🇳 Lion Hub ",
+    Title = "🇻🇳 Mở Lion Hub 🇻🇳",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -369,7 +349,7 @@ Tabs.KaitunTab:Button({
 
 Tabs.KaitunTab:Button({
     Title = "Marukaitun",
-    Desc = "Chạy script Marukaitun-Cho Mobile/ONLY MOBILE",
+    Desc = "Chạy script Marukaitun-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
     end
@@ -428,7 +408,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Maru Hub",
-    Desc = "Chạy script Maru Hub-Chỉ Mobile",
+    Desc = "Chạy script Maru Hub-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
     end
@@ -502,7 +482,7 @@ Tabs.MainTab:Button({
             })
         else
             Window:Notification({
-                Title = "Lion Hub",
+                Title = "LionHub",
                 Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
                 Duration = 5
             })
