@@ -348,7 +348,7 @@ Tabs.KaitunTab:Button({
 })
 
 Tabs.KaitunTab:Button({
-    Title = "Marukaitun (Mobile)", -- Đổi tên thành "Marukaitun (Mobile)"
+    Title = "Marukaitun Mobile", -- Đổi tên thành "Marukaitun (Mobile)"
     Desc = "Chạy script Marukaitun",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
@@ -407,7 +407,7 @@ Tabs.MainTab:Button({
 })
 
 Tabs.MainTab:Button({
-    Title = "Maru Hub (Mobile)", -- Đổi tên thành "Maru Hub (Mobile)"
+    Title = "Maru Hub Mobile", -- Đổi tên thành "Maru Hub (Mobile)"
     Desc = "Chạy script Maru Hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
