@@ -295,7 +295,7 @@ end)
 
 -- Tùy chỉnh nút mở UI
 Window:EditOpenButton({
-    Title = "🇻🇳 Mở Lion Hub 🇻🇳",
+    Title = "🇻🇳 Lion Hub 🇻🇳",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 10),
     StrokeThickness = 2,
@@ -416,7 +416,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Banana Hub 1",
-    Desc = "Chạy script Banana Hub (Phiên bản 1)",
+    Desc = "Chạy script Banana Hub ",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
@@ -424,7 +424,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Banana Hub 2",
-    Desc = "Chạy script Banana Hub (Phiên bản 2)",
+    Desc = "Chạy script Banana Hub ",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
@@ -432,7 +432,7 @@ Tabs.MainTab:Button({
 
 Tabs.MainTab:Button({
     Title = "Banana Hub 3",
-    Desc = "Chạy script Banana Hub (Phiên bản 3)",
+    Desc = "Chạy script Banana Hub ",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
     end
