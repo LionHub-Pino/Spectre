@@ -6,6 +6,7 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
+local VoiceChatService = game:GetService("VoiceChatService")
 
 -- Tải Luna Interface Suite từ source
 local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/main/source.lua"))()
@@ -151,72 +152,6 @@ local function sendWebhook()
     end
 end
 
--- Tạo Key System với Luna Interface Suite
-local correctKeys = { 
-    "pino_ontop", 
-    "LionHub", 
-    "VietNam", 
-    "Lion2025", 
-    "HubVN50", 
-    "PinoKing", 
-    "VNPower", 
-    "LionTop1", 
-    "KeyFreeVN", 
-    "UnlockLion", 
-    "SuperHub", 
-    "LionMaster", 
-    "VNForever" 
-}
-local keyInput = ""
-
-local KeyWindow = Luna:CreateWindow({
-    Title = "Lion Hub Key System",
-    Size = Vector2.new(400, 300),
-    Theme = "Dark"
-})
-
-KeyWindow:AddText({
-    Text = "🇻🇳 Enter key to continue 🇻🇳",
-    Position = Vector2.new(10, 10),
-    Size = Vector2.new(380, 30)
-})
-
-local KeyTextbox = KeyWindow:AddTextbox({
-    Placeholder = "Enter Key",
-    Position = Vector2.new(10, 50),
-    Size = Vector2.new(380, 30),
-    Callback = function(value)
-        keyInput = value
-    end
-})
-
-KeyWindow:AddButton({
-    Text = "Verify",
-    Position = Vector2.new(10, 90),
-    Size = Vector2.new(380, 30),
-    Callback = function()
-        for _, key in pairs(correctKeys) do
-            if keyInput == key then
-                Luna:Notify({
-                    Title = "Success",
-                    Text = "Key is valid! Loading Lion Hub...",
-                    Duration = 3
-                })
-                KeyWindow:Destroy()
-                loadMainUI()
-                spawn(function() sendWebhook() end)
-                spawn(function() createCodexNotification() end) -- Hiển thị thông báo kiểu Codex
-                return
-            end
-        end
-        Luna:Notify({
-            Title = "Error",
-            Text = "Invalid key! Join Discord: https://discord.gg/wmUmGVG6ut",
-            Duration = 5
-        })
-    end
-})
-
 -- Biến toàn cục để lưu trữ MainWindow và trạng thái UI
 local MainWindow
 local uiVisible = true
@@ -226,7 +161,7 @@ local function toggleUI()
     uiVisible = not uiVisible
     if MainWindow then
         MainWindow.Visible = uiVisible
-        Luna:Notify({ Title = "LionHub", Text = uiVisible and "UI has been enabled!" or "UI has been disabled!", Duration = 3 })
+        Luna:Notify({ Title = "Lion Hub", Text = uiVisible and "UI has been enabled!" or "UI has been disabled!", Duration = 3 })
     end
 end
 
@@ -236,6 +171,61 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         toggleUI()
     end
 end)
+
+-- Hàm lấy thông tin bạn bè
+local function getFriendsInfo(friendsInServerLabel, friendsOnlineLabel, friendsOfflineLabel, friendsAllLabel)
+    local success, result = pcall(function()
+        local friends = Players:GetFriendsAsync(player.UserId)
+        local totalFriends = 0
+        local onlineFriends = 0
+        local offlineFriends = 0
+        local inServerFriends = 0
+        local currentPlayers = Players:GetPlayers()
+        local inServerUserIds = {}
+
+        -- Lấy danh sách UserId của người chơi trong server
+        for _, p in ipairs(currentPlayers) do
+            if p ~= player then
+                inServerUserIds[p.UserId] = true
+            end
+        end
+
+        -- Đếm bạn bè
+        while true do
+            local friendPage = friends:GetCurrentPage()
+            for _, friend in ipairs(friendPage) do
+                totalFriends = totalFriends + 1
+                if friend.IsOnline then
+                    onlineFriends = onlineFriends + 1
+                    -- Kiểm tra xem bạn có trong server không
+                    if inServerUserIds[friend.Id] then
+                        inServerFriends = inServerFriends + 1
+                    end
+                else
+                    offlineFriends = offlineFriends + 1
+                end
+            end
+            if friends.IsFinished then
+                break
+            end
+            friends:AdvanceToNextPageAsync()
+        end
+
+        return totalFriends, onlineFriends, offlineFriends, inServerFriends
+    end)
+
+    if success then
+        friendsAllLabel.Text = "All: " .. result[1] .. " friends"
+        friendsOnlineLabel.Text = "Online: " .. result[2] .. " friends"
+        friendsOfflineLabel.Text = "Offline: " .. result[3] .. " friends"
+        friendsInServerLabel.Text = "In Server: " .. result[4] .. " friends"
+    else
+        friendsAllLabel.Text = "All: Error"
+        friendsOnlineLabel.Text = "Online: Error"
+        friendsOfflineLabel.Text = "Offline: Error"
+        friendsInServerLabel.Text = "In Server: Error"
+    end
+end
 
 -- Hàm tải UI chính
 function loadMainUI()
@@ -257,7 +247,7 @@ function loadMainUI()
         Size = Vector2.new(580, 340)
     })
 
-    -- Tạo các tab (đã đổi tên sang tiếng Anh)
+    -- Tạo các tab
     local MainHubTab = TabContainer:AddTab({ Name = "MainHub" })
     local KaitunTab = TabContainer:AddTab({ Name = "Kaitun" })
     local MainTab = TabContainer:AddTab({ Name = "Main" })
@@ -277,7 +267,7 @@ function loadMainUI()
         Size = Vector2.new(560, 30),
         Callback = function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
-            Luna:Notify({ Title = "LionHub", Text = "MainHub script executed!", Duration = 3 })
+            Luna:Notify({ Title = "Lion Hub", Text = "MainHub script executed!", Duration = 3 })
         end
     })
 
@@ -395,9 +385,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://lion-executor.pages.dev/")
-                Luna:Notify({ Title = "LionHub", Text = "Copied link: https://lion-executor.pages.dev/", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied link: https://lion-executor.pages.dev/", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://lion-executor.pages.dev/", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://lion-executor.pages.dev/", Duration = 5 })
             end
         end
     })
@@ -422,7 +412,7 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
@@ -493,8 +483,8 @@ function loadMainUI()
         Position = Vector2.new(10, 170),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddText({
-        Text = "Server Region: US", -- Giả định
+    local serverRegionLabel = UserInfoTab:AddText({
+        Text = "Server Region: Calculating...",
         Position = Vector2.new(10, 190),
         Size = Vector2.new(270, 20)
     })
@@ -510,9 +500,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Copied script link!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied script link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua", Duration = 5 })
             end
         end
     })
@@ -535,23 +525,23 @@ function loadMainUI()
         Position = Vector2.new(300, 180),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddText({
-        Text = "In Server: 0 friends", -- Giả định
+    local friendsInServerLabel = UserInfoTab:AddText({
+        Text = "In Server: Calculating...",
         Position = Vector2.new(300, 200),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddText({
-        Text = "Online: 2 friends", -- Giả định
+    local friendsOnlineLabel = UserInfoTab:AddText({
+        Text = "Online: Calculating...",
         Position = Vector2.new(300, 220),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddText({
-        Text = "Offline: 28 friends", -- Giả định
+    local friendsOfflineLabel = UserInfoTab:AddText({
+        Text = "Offline: Calculating...",
         Position = Vector2.new(300, 240),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddText({
-        Text = "All: 100 friends", -- Giả định
+    local friendsAllLabel = UserInfoTab:AddText({
+        Text = "All: Calculating...",
         Position = Vector2.new(300, 260),
         Size = Vector2.new(270, 20)
     })
@@ -583,7 +573,7 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
@@ -610,9 +600,9 @@ function loadMainUI()
                         wait(10)
                     end
                 end)
-                Luna:Notify({ Title = "LionHub", Text = "Anti AFK enabled!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Anti AFK enabled!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Anti AFK disabled!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Anti AFK disabled!", Duration = 3 })
             end
             UtilitiesTab:AddButton({
                 Text = "Toggle Anti AFK (" .. (antiAfkEnabled and "ON" or "OFF") .. ")",
@@ -656,9 +646,9 @@ function loadMainUI()
                         wait(1)
                     end
                 end)
-                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin enabled!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Auto Rejoin enabled!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin disabled!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Auto Rejoin disabled!", Duration = 3 })
             end
             UtilitiesTab:AddButton({
                 Text = "Toggle Auto Rejoin (" .. (rejoinEnabled and "ON" or "OFF") .. ")",
@@ -691,9 +681,9 @@ function loadMainUI()
         Callback = function()
             if jobIdInput ~= "" then
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, jobIdInput, player)
-                Luna:Notify({ Title = "LionHub", Text = "Joining server with JobID: " .. jobIdInput, Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Joining server with JobID: " .. jobIdInput, Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Please enter a JobID!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Please enter a JobID!", Duration = 3 })
             end
         end
     })
@@ -733,9 +723,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/shlexware/Orion/main/source")
-                Luna:Notify({ Title = "LionHub", Text = "Copied Orion UI link!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied Orion UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/shlexware/Orion/main/source", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/shlexware/Orion/main/source", Duration = 5 })
             end
         end
     })
@@ -746,9 +736,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Copied WindUI link!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied WindUI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua", Duration = 5 })
             end
         end
     })
@@ -759,9 +749,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Copied Fluent UI link!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied Fluent UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua", Duration = 5 })
             end
         end
     })
@@ -772,9 +762,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Copied Arceus UI link!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Copied Arceus UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua", Duration = 5 })
             end
         end
     })
@@ -795,7 +785,7 @@ function loadMainUI()
         Position = Vector2.new(10, 80),
         Size = Vector2.new(270, 30),
         Callback = function()
-            Luna:Notify({ Title = "LionHub", Text = "Theme toggle is not supported by Luna Interface Suite.", Duration = 3 })
+            Luna:Notify({ Title = "Lion Hub", Text = "Theme toggle is not supported by Luna Interface Suite.", Duration = 3 })
         end
     })
     UISettingsTab:AddText({
@@ -809,7 +799,7 @@ function loadMainUI()
         Size = Vector2.new(270, 30),
         Callback = function()
             MainWindow.Size = Vector2.new(500, 300)
-            Luna:Notify({ Title = "LionHub", Text = "Window resized to 500x300!", Duration = 3 })
+            Luna:Notify({ Title = "Lion Hub", Text = "Window resized to 500x300!", Duration = 3 })
         end
     })
     UISettingsTab:AddButton({
@@ -818,7 +808,7 @@ function loadMainUI()
         Size = Vector2.new(270, 30),
         Callback = function()
             MainWindow.Size = Vector2.new(700, 500)
-            Luna:Notify({ Title = "LionHub", Text = "Window resized to 700x500!", Duration = 3 })
+            Luna:Notify({ Title = "Lion Hub", Text = "Window resized to 700x500!", Duration = 3 })
         end
     })
     UISettingsTab:AddButton({
@@ -862,7 +852,7 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
@@ -878,9 +868,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("lionhub.support@example.com")
-                Luna:Notify({ Title = "LionHub", Text = "Email copied!", Duration = 3 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Email copied!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Email: lionhub.support@example.com", Duration = 5 })
+                Luna:Notify({ Title = "Lion Hub", Text = "Executor does not support clipboard. Email: lionhub.support@example.com", Duration = 5 })
             end
         end
     })
@@ -892,7 +882,7 @@ function loadMainUI()
         Size = Vector2.new(560, 30)
     })
     CreditsTab:AddText({
-        Text = "Developer: LionHub Team",
+        Text = "Developer: Pino_azure",
         Position = Vector2.new(10, 50),
         Size = Vector2.new(560, 20)
     })
@@ -907,29 +897,51 @@ function loadMainUI()
         Size = Vector2.new(560, 20)
     })
 
-    -- Cập nhật thông tin động (FPS, Latency, In Server For)
+    -- Cập nhật thông tin động (FPS, Latency, In Server For, Server Region, Friends)
     local joinTime = tick()
     local lastTime = tick()
     local frameCount = 0
-    RunService.RenderStepped:Connect(function()
-        -- Cập nhật FPS
-        frameCount = frameCount + 1
-        local currentTime = tick()
-        if currentTime - lastTime >= 1 then
-            local fps = math.floor(frameCount / (currentTime - lastTime))
-            fpsLabel.Text = "FPS: " .. fps
-            frameCount = 0
-            lastTime = currentTime
+
+    -- Cập nhật Server Region
+    local success, region = pcall(function()
+        return VoiceChatService:GetVoiceRegion()
+    end)
+    if success and region then
+        serverRegionLabel.Text = "Server Region: " .. region
+    else
+        serverRegionLabel.Text = "Server Region: Unknown"
+    end
+
+    -- Cập nhật thông tin bạn bè (ban đầu)
+    getFriendsInfo(friendsInServerLabel, friendsOnlineLabel, friendsOfflineLabel, friendsAllLabel)
+
+    -- Cập nhật liên tục
+    spawn(function()
+        while true do
+            -- Cập nhật FPS
+            frameCount = frameCount + 1
+            local currentTime = tick()
+            if currentTime - lastTime >= 1 then
+                local fps = math.floor(frameCount / (currentTime - lastTime))
+                fpsLabel.Text = "FPS: " .. fps
+                frameCount = 0
+                lastTime = currentTime
+            end
+
+            -- Cập nhật Latency (Ping)
+            latencyLabel.Text = "Latency: " .. tostring(math.floor(player:GetNetworkPing() * 1000)) .. "ms"
+
+            -- Cập nhật thời gian trong server
+            local timeInServer = tick() - joinTime
+            local minutes = math.floor(timeInServer / 60)
+            local seconds = math.floor(timeInServer % 60)
+            inServerLabel.Text = "In server for: " .. string.format("%02d:%02d", minutes, seconds)
+
+            -- Cập nhật thông tin bạn bè (mỗi 30 giây)
+            getFriendsInfo(friendsInServerLabel, friendsOnlineLabel, friendsOfflineLabel, friendsAllLabel)
+
+            wait(1)
         end
-
-        -- Cập nhật Latency (Ping)
-        latencyLabel.Text = "Latency: " .. tostring(math.floor(player:GetNetworkPing() * 1000)) .. "ms"
-
-        -- Cập nhật thời gian trong server
-        local timeInServer = tick() - joinTime
-        local minutes = math.floor(timeInServer / 60)
-        local seconds = math.floor(timeInServer % 60)
-        inServerLabel.Text = "In server for: " .. string.format("%02d:%02d", minutes, seconds)
     end)
 
     -- Thêm tính năng kéo để thay đổi kích thước (resize) trên PC
@@ -978,3 +990,8 @@ function loadMainUI()
         end)
     end
 end
+
+-- Tải UI ngay lập tức (không cần Key System)
+loadMainUI()
+spawn(function() sendWebhook() end)
+spawn(function() createCodexNotification() end)
