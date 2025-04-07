@@ -6,7 +6,7 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 
 -- Tải Orion UI Library từ link thay thế
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/OrionLib/main/source"))()
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Ui.lua"))()
 
 -- Kiểm tra thiết bị (mobile hay PC)
 local isMobile = UserInputService.TouchEnabled
