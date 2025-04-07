@@ -257,7 +257,7 @@ function loadMainUI()
         Size = Vector2.new(580, 340)
     })
 
-    -- Tạo các tab
+    -- Tạo các tab (đã bỏ Vietnam Time)
     local MainHubTab = TabContainer:AddTab({ Name = "MainHub" })
     local KaitunTab = TabContainer:AddTab({ Name = "Kaitun" })
     local MainTab = TabContainer:AddTab({ Name = "Main" })
@@ -269,7 +269,6 @@ function loadMainUI()
     local SettingUITab = TabContainer:AddTab({ Name = "Setting UI" })
     local ContactTab = TabContainer:AddTab({ Name = "Contact" })
     local CreditsTab = TabContainer:AddTab({ Name = "Credits" })
-    local VietnamTimeTab = TabContainer:AddTab({ Name = "Vietnam Time" })
 
     -- Tab: MainHub
     MainHubTab:AddButton({
@@ -886,23 +885,6 @@ function loadMainUI()
         Size = Vector2.new(560, 20)
     })
 
-    -- Tab: Vietnam Time
-    local vietnamTimeLabel = VietnamTimeTab:AddLabel({
-        Text = "Current Vietnam Time (UTC+7): Calculating...",
-        Position = Vector2.new(10, 10),
-        Size = Vector2.new(560, 30)
-    })
-
-    -- Cập nhật thời gian Việt Nam (UTC+7) mỗi giây
-    spawn(function()
-        while true do
-            local vietnamTime = os.time() + 7 * 3600 -- UTC+7
-            local formattedTime = os.date("%A, %d %B %Y, %H:%M:%S", vietnamTime) -- Định dạng tiếng Anh
-            vietnamTimeLabel.Text = "Current Vietnam Time (UTC+7): " .. formattedTime
-            wait(1)
-        end
-    end)
-
     -- Cập nhật thông tin động (Latency, In Server For)
     local joinTime = tick()
     local lastTime = tick()
@@ -981,10 +963,10 @@ infoGui.ResetOnSpawn = false
 -- Tạo Frame cho thông tin
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    infoFrame.Size = UDim2.new(0, 300, 0, 200)
+    infoFrame.Size = UDim2.new(0, 300, 0, 180) -- Giảm chiều cao vì bỏ VN Date
     infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
 else
-    infoFrame.Size = UDim2.new(0, 350, 0, 220)
+    infoFrame.Size = UDim2.new(0, 350, 0, 200) -- Giảm chiều cao vì bỏ VN Date
     infoFrame.Position = UDim2.new(0.5, -175, 0, 15)
 end
 infoFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
@@ -1057,22 +1039,10 @@ userLabel.Font = Enum.Font.Gotham
 userLabel.TextXAlignment = Enum.TextXAlignment.Center
 userLabel.Parent = infoFrame
 
--- TextLabel VN Date
-local vietnamDateLabel = Instance.new("TextLabel")
-vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
-vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
-vietnamDateLabel.BackgroundTransparency = 1
-vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
-vietnamDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-vietnamDateLabel.TextSize = isMobile and 14 or 16
-vietnamDateLabel.Font = Enum.Font.Gotham
-vietnamDateLabel.TextXAlignment = Enum.TextXAlignment.Center
-vietnamDateLabel.Parent = infoFrame
-
 -- TextLabel Executor
 local executorLabel = Instance.new("TextLabel")
 executorLabel.Size = UDim2.new(1, 0, 0, 20)
-executorLabel.Position = UDim2.new(0, 0, 0, 105)
+executorLabel.Position = UDim2.new(0, 0, 0, 85) -- Điều chỉnh vị trí vì bỏ VN Date
 executorLabel.BackgroundTransparency = 1
 local executorName = "Unknown"
 if syn then executorName = "Synapse X"
@@ -1090,7 +1060,7 @@ executorLabel.Parent = infoFrame
 -- TextLabel cảm ơn với hiệu ứng đánh máy
 local thanksLabel = Instance.new("TextLabel")
 thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 135)
+thanksLabel.Position = UDim2.new(0, 0, 0, 115) -- Điều chỉnh vị trí vì bỏ VN Date
 thanksLabel.BackgroundTransparency = 1
 thanksLabel.Text = ""
 thanksLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -1124,7 +1094,7 @@ spawn(function()
     end
 end)
 
--- Cập nhật FPS và ngày giờ
+-- Cập nhật FPS
 local lastTime = tick()
 local frameCount = 0
 RunService.RenderStepped:Connect(function()
@@ -1136,5 +1106,4 @@ RunService.RenderStepped:Connect(function()
         frameCount = 0
         lastTime = currentTime
     end
-    vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 end)
