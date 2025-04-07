@@ -106,7 +106,7 @@ spawn(function()
     sendWebhook()
 end)
 
--- Tạo ScreenGui cho thông tin
+-- Tạo ScreenGui cho thông tin (giữ nguyên từ mã cũ)
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -306,7 +306,7 @@ Window:EditOpenButton({
     Draggable = true,
 })
 
--- Tạo các tab (không có ConsoleTab)
+-- Tạo các tab
 local Tabs = {
     MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
     KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
