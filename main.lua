@@ -5,8 +5,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 
--- Tải Fluent UI Lib từ URL mới
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
+-- Tải WindUI Lib
+local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
 -- Kiểm tra thiết bị (mobile hay PC)
 local isMobile = UserInputService.TouchEnabled
@@ -22,26 +22,27 @@ end
 -- Thời gian bắt đầu để tính thời gian UI hiển thị
 local startTime = tick()
 
--- Tạo cửa sổ Fluent
-local Options = Fluent.Options
-local Window = Fluent:CreateWindow({
+-- Tạo cửa sổ WindUI với key system tích hợp
+local Window = WindUI:CreateWindow({
     Title = "Lion Hub 🇻🇳",
-    SubTitle = "Mừng 50 Năm Giải Phóng Đất Nước",
-    TabWidth = 160,
+    Icon = "door-open",
+    Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
+    Folder = "LionHubData",
     Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
     Theme = "Dark",
-    Acrylic = true,
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
--- Hệ thống khóa (Key System)
-local KeySystem = Fluent:CreateKeySystem({
-    Title = "Lion Hub Key System",
-    Description = "Nhập key chính xác để tiếp tục.",
-    Keys = { "pino_ontop", "LionHub", "VietNam" },
-    SaveKey = true,
-    Image = thumbnailImage,
-    Discord = "https://discord.gg/wmUmGVG6ut"
+    SideBarWidth = 200,
+    HasOutline = false,
+    KeySystem = { 
+        Key = { "pino_ontop", "LionHub", "VietNam" },
+        Note = "Nhập key chính xác để tiếp tục.",
+        URL = "https://discord.gg/wmUmGVG6ut",
+        SaveKey = true,
+        Thumbnail = {
+            Image = thumbnailImage,
+            Title = "Lion Hub Key System"
+        },
+    },
 })
 
 -- Hàm định dạng thời gian thành "phút giây"
@@ -292,143 +293,175 @@ RunService.RenderStepped:Connect(function()
     vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 end)
 
--- Tạo các tab
+-- Tùy chỉnh nút mở UI
+Window:EditOpenButton({
+    Title = "🇻🇳 Mở Lion Hub 🇻🇳",
+    Icon = "monitor",
+    CornerRadius = UDim.new(0, 10),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(
+        Color3.fromHex("FF0F7B"), 
+        Color3.fromHex("F89B29")
+    ),
+    Draggable = true,
+})
+
+-- Tạo các tab (không có ConsoleTab)
 local Tabs = {
-    MainHubTab = Window:AddTab({ Title = "MainHub", Icon = "star" }),
-    KaitunTab = Window:AddTab({ Title = "Kaitun", Icon = "flame" }),
-    MainTab = Window:AddTab({ Title = "Main", Icon = "shield" }),
-    NotificationTab = Window:AddTab({ Title = "Nhật Ký Cập Nhật", Icon = "bell" })
+    MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
+    KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
+    MainTab = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Các tính năng chính và script." }),
+    NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
 }
 
+-- Chọn tab mặc định
+Window:SelectTab(1)
+
 -- Tab: MainHub
-local MainHubSection = Tabs.MainHubTab:AddSection("MainHub Script")
-MainHubSection:AddButton({
+Tabs.MainHubTab:Section({ Title = "MainHub Script" })
+
+Tabs.MainHubTab:Button({
     Title = "MainHub",
-    Description = "Chạy script MainHub",
+    Desc = "Chạy script MainHub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
     end
 })
 
 -- Tab: Kaitun
-local KaitunSection = Tabs.KaitunTab:AddSection("Kaitun Scripts")
-KaitunSection:AddButton({
+Tabs.KaitunTab:Section({ Title = "Kaitun Scripts" })
+
+Tabs.KaitunTab:Button({
     Title = "Kaitun",
-    Description = "Chạy script Kaitun",
+    Desc = "Chạy script Kaitun",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunDF",
-    Description = "Chạy script KaitunDF",
+    Desc = "Chạy script KaitunDF",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "Marukaitun",
-    Description = "Chạy script Marukaitun-Mobile",
+    Desc = "Chạy script Marukaitun-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunFisch",
-    Description = "Chạy script KaitunFisch",
+    Desc = "Chạy script KaitunFisch",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunAd",
-    Description = "Chạy script KaitunAd",
+    Desc = "Chạy script KaitunAd",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunKI",
-    Description = "Chạy script KaitunKI",
+    Desc = "Chạy script KaitunKI",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunAR",
-    Description = "Chạy script KaitunAR",
+    Desc = "Chạy script Kaitunar",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
     end
 })
-KaitunSection:AddButton({
+
+Tabs.KaitunTab:Button({
     Title = "KaitunAV",
-    Description = "Chạy script KaitunAV",
+    Desc = "Chạy script KaitunAV",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
     end
 })
 
 -- Tab: Main
-local MainSection = Tabs.MainTab:AddSection("Script")
-MainSection:AddButton({
+Tabs.MainTab:Section({ Title = "Script" })
+
+Tabs.MainTab:Button({
     Title = "W-Azure",
-    Description = "Chạy script W-Azure",
+    Desc = "Chạy script W-Azure",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Maru Hub",
-    Description = "Chạy script Maru Hub-Mobile",
+    Desc = "Chạy script Maru Hub-Mobile",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Banana Hub 1",
-    Description = "Chạy script Banana Hub (Phiên bản 1)",
+    Desc = "Chạy script Banana Hub (Phiên bản 1)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Banana Hub 2",
-    Description = "Chạy script Banana Hub (Phiên bản 2)",
+    Desc = "Chạy script Banana Hub (Phiên bản 2)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Banana Hub 3",
-    Description = "Chạy script Banana Hub (Phiên bản 3)",
+    Desc = "Chạy script Banana Hub (Phiên bản 3)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "All Executor Here",
-    Description = "Sao chép link tải executor",
+    Desc = "Sao chép link tải executor",
     Callback = function()
         if setclipboard then
             setclipboard("https://lion-executor.pages.dev/")
-            Fluent:Notify({
+            Window:Notification({
                 Title = "LionHub",
-                Content = "Đã sao chép link: https://lion-executor.pages.dev/",
+                Text = "Đã sao chép link: https://lion-executor.pages.dev/",
                 Duration = 3
             })
         else
-            Fluent:Notify({
+            Window:Notification({
                 Title = "LionHub",
-                Content = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/",
+                Text = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/",
                 Duration = 5
             })
         end
     end
 })
-MainSection:AddButton({
+
+Tabs.MainTab:Button({
     Title = "Server Discord Hỗ Trợ",
-    Description = "Tham gia server Discord để được hỗ trợ",
+    Desc = "Tham gia server Discord để được hỗ trợ",
     Callback = function()
         local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
         if request then
@@ -448,20 +481,21 @@ MainSection:AddButton({
                 })
             })
         else
-            Fluent:Notify({
+            Window:Notification({
                 Title = "LionHub",
-                Content = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
+                Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
                 Duration = 5
             })
         end
     end
 })
 
-local SettingsSection = Tabs.MainTab:AddSection("Cài Đặt Giao Diện")
-SettingsSection:AddDropdown({
+Tabs.MainTab:Section({ Title = "Cài Đặt Giao Diện" })
+
+Tabs.MainTab:Dropdown({
     Title = "Đổi Giao Diện",
     Values = { "Tối", "Sáng", "Xanh Nước Biển", "Xanh Lá", "Tím" },
-    Default = "Tối",
+    Value = "Tối",
     Callback = function(value)
         local themeMap = {
             ["Tối"] = "Dark",
@@ -470,39 +504,40 @@ SettingsSection:AddDropdown({
             ["Xanh Lá"] = "Green",
             ["Tím"] = "Amethyst"
         }
-        Fluent:ChangeTheme(themeMap[value])
-        Fluent:Notify({
+        WindUI:SetTheme(themeMap[value])
+        Window:Notification({
             Title = "LionHub",
-            Content = "Đã đổi giao diện thành " .. value,
+            Text = "Đã đổi giao diện thành " .. value,
             Duration = 3
         })
     end
 })
 
 -- Tab: Nhật Ký Cập Nhật
-local NotificationSection = Tabs.NotificationTab:AddSection("Thông Tin Cập Nhật")
-NotificationSection:AddButton({
+Tabs.NotificationTab:Section({ Title = "Thông Tin Cập Nhật" })
+
+Tabs.NotificationTab:Button({
     Title = "Xem Nhật Ký Cập Nhật",
-    Callback = function()
-        Fluent:Notify({
+    Callback = function() 
+        WindUI:Notify({
             Title = "Nhật Ký Cập Nhật - Phần 1",
             Content = "- Tiếng Anh-Tiếng Việt\n- Có sẵn trên mọi client\n- Dùng Được trên tất cả client",
-            Duration = 5
+            Icon = "bell",
+            Duration = 5,
         })
         wait(5.1)
-        Fluent:Notify({
+        WindUI:Notify({
             Title = "Nhật Ký Cập Nhật - Phần 2",
             Content = "- Android - iOS - PC\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt",
-            Duration = 5
+            Icon = "bell",
+            Duration = 5,
         })
         wait(5.1)
-        Fluent:Notify({
+        WindUI:Notify({
             Title = "Nhật Ký Cập Nhật - Phần 3",
             Content = "- Hỗ Trợ các công cụ\n- Và Update Mỗi Tuần",
-            Duration = 5
+            Icon = "bell",
+            Duration = 5,
         })
     end
 })
-
--- Chọn tab mặc định
-Window:SelectTab(1)
