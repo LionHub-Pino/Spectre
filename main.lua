@@ -29,9 +29,9 @@ local function formatTime(seconds)
     local minutes = math.floor(seconds / 60)
     local remainingSeconds = math.floor(seconds % 60)
     if minutes > 0 then
-        return string.format("%d phút %d giây", minutes, remainingSeconds)
+        return string.format("%d minutes %d seconds", minutes, remainingSeconds)
     else
-        return string.format("%d giây", remainingSeconds)
+        return string.format("%d seconds", remainingSeconds)
     end
 end
 
@@ -126,7 +126,7 @@ local function sendWebhook()
     local loadTime = tick() - startTime
     local formattedTime = formatTime(loadTime)
     local webhookData = {
-        ["username"] = "EXCUTOR SUCCESS",
+        ["username"] = "EXECUTOR SUCCESS",
         ["embeds"] = {{
             ["title"] = "Executor Success",
             ["fields"] = {
@@ -175,14 +175,14 @@ local KeyWindow = Luna:CreateWindow({
     Theme = "Dark"
 })
 
-KeyWindow:AddLabel({
-    Text = "🇻🇳 Nhập key để tiếp tục 🇻🇳",
+KeyWindow:AddText({
+    Text = "🇻🇳 Enter key to continue 🇻🇳",
     Position = Vector2.new(10, 10),
     Size = Vector2.new(380, 30)
 })
 
 local KeyTextbox = KeyWindow:AddTextbox({
-    Placeholder = "Nhập Key",
+    Placeholder = "Enter Key",
     Position = Vector2.new(10, 50),
     Size = Vector2.new(380, 30),
     Callback = function(value)
@@ -191,15 +191,15 @@ local KeyTextbox = KeyWindow:AddTextbox({
 })
 
 KeyWindow:AddButton({
-    Text = "Xác Nhận",
+    Text = "Verify",
     Position = Vector2.new(10, 90),
     Size = Vector2.new(380, 30),
     Callback = function()
         for _, key in pairs(correctKeys) do
             if keyInput == key then
                 Luna:Notify({
-                    Title = "Thành Công",
-                    Text = "Key hợp lệ! Đang tải Lion Hub...",
+                    Title = "Success",
+                    Text = "Key is valid! Loading Lion Hub...",
                     Duration = 3
                 })
                 KeyWindow:Destroy()
@@ -210,8 +210,8 @@ KeyWindow:AddButton({
             end
         end
         Luna:Notify({
-            Title = "Lỗi",
-            Text = "Key không đúng! Tham gia Discord: https://discord.gg/wmUmGVG6ut",
+            Title = "Error",
+            Text = "Invalid key! Join Discord: https://discord.gg/wmUmGVG6ut",
             Duration = 5
         })
     end
@@ -226,7 +226,7 @@ local function toggleUI()
     uiVisible = not uiVisible
     if MainWindow then
         MainWindow.Visible = uiVisible
-        Luna:Notify({ Title = "LionHub", Text = uiVisible and "UI đã được bật!" or "UI đã được tắt!", Duration = 3 })
+        Luna:Notify({ Title = "LionHub", Text = uiVisible and "UI has been enabled!" or "UI has been disabled!", Duration = 3 })
     end
 end
 
@@ -245,8 +245,8 @@ function loadMainUI()
         Theme = "Dark"
     })
 
-    MainWindow:AddLabel({
-        Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
+    MainWindow:AddText({
+        Text = "🇻🇳 Celebrating 50 Years of Liberation 🇻🇳",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(580, 30)
     })
@@ -257,16 +257,16 @@ function loadMainUI()
         Size = Vector2.new(580, 340)
     })
 
-    -- Tạo các tab (đã bỏ Vietnam Time)
+    -- Tạo các tab (đã đổi tên sang tiếng Anh)
     local MainHubTab = TabContainer:AddTab({ Name = "MainHub" })
     local KaitunTab = TabContainer:AddTab({ Name = "Kaitun" })
     local MainTab = TabContainer:AddTab({ Name = "Main" })
-    local NotificationTab = TabContainer:AddTab({ Name = "Nhật Ký Cập Nhật" })
-    local UserInfoTab = TabContainer:AddTab({ Name = "Thông Tin User" })
+    local UpdateLogTab = TabContainer:AddTab({ Name = "Update Log" })
+    local UserInfoTab = TabContainer:AddTab({ Name = "User Info" })
     local UtilitiesTab = TabContainer:AddTab({ Name = "Utilities" })
     local UILibTab = TabContainer:AddTab({ Name = "UI LIB By Luna (Not Mine)" })
     local AllUIExecutorTab = TabContainer:AddTab({ Name = "All UI Executor Script" })
-    local SettingUITab = TabContainer:AddTab({ Name = "Setting UI" })
+    local UISettingsTab = TabContainer:AddTab({ Name = "UI Settings" })
     local ContactTab = TabContainer:AddTab({ Name = "Contact" })
     local CreditsTab = TabContainer:AddTab({ Name = "Credits" })
 
@@ -277,7 +277,7 @@ function loadMainUI()
         Size = Vector2.new(560, 30),
         Callback = function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
-            Luna:Notify({ Title = "LionHub", Text = "Đã chạy script MainHub!", Duration = 3 })
+            Luna:Notify({ Title = "LionHub", Text = "MainHub script executed!", Duration = 3 })
         end
     })
 
@@ -389,20 +389,20 @@ function loadMainUI()
         end
     })
     MainTab:AddButton({
-        Text = "All Executor Here",
+        Text = "All Executors Here",
         Position = Vector2.new(10, 210),
         Size = Vector2.new(560, 30),
         Callback = function()
             if setclipboard then
                 setclipboard("https://lion-executor.pages.dev/")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link: https://lion-executor.pages.dev/", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Copied link: https://lion-executor.pages.dev/", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://lion-executor.pages.dev/", Duration = 5 })
             end
         end
     })
     MainTab:AddButton({
-        Text = "Server Discord Hỗ Trợ",
+        Text = "Support Discord Server",
         Position = Vector2.new(10, 250),
         Size = Vector2.new(560, 30),
         Callback = function()
@@ -422,127 +422,149 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ mở link Discord. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
 
-    -- Tab: Nhật Ký Cập Nhật
-    NotificationTab:AddButton({
-        Text = "Xem Nhật Ký Cập Nhật",
+    -- Tab: Update Log
+    UpdateLogTab:AddButton({
+        Text = "View Update Log",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30),
         Callback = function()
-            Luna:Notify({ Title = "Nhật Ký Cập Nhật - Phần 1", Text = "- Tiếng Anh-Tiếng Việt\n- Có sẵn trên mọi client\n- Dùng Được trên tất cả client", Duration = 5 })
+            Luna:Notify({ Title = "Update Log - Part 1", Text = "- English-Vietnamese\n- Available on all clients\n- Compatible with all clients", Duration = 5 })
             wait(5.1)
-            Luna:Notify({ Title = "Nhật Ký Cập Nhật - Phần 2", Text = "- Android - iOS - PC\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt", Duration = 5 })
+            Luna:Notify({ Title = "Update Log - Part 2", Text = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users", Duration = 5 })
             wait(5.1)
-            Luna:Notify({ Title = "Nhật Ký Cập Nhật - Phần 3", Text = "- Hỗ Trợ các công cụ\n- Và Update Mỗi Tuần", Duration = 5 })
+            Luna:Notify({ Title = "Update Log - Part 3", Text = "- Supports various tools\n- Weekly updates", Duration = 5 })
         end
     })
 
-    -- Tab: Thông Tin User
-    UserInfoTab:AddLabel({
-        Text = "Hello, " .. player.Name,
-        Position = Vector2.new(10, 10),
-        Size = Vector2.new(560, 30)
-    })
-
-    -- Server Info Section
-    UserInfoTab:AddLabel({
-        Text = "SERVER",
-        Position = Vector2.new(10, 50),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddLabel({
-        Text = "Players: " .. #Players:GetPlayers() .. "/" .. game.Players.MaxPlayers,
-        Position = Vector2.new(10, 80),
-        Size = Vector2.new(270, 20)
-    })
-    local latencyLabel = UserInfoTab:AddLabel({
-        Text = "Latency: Calculating...",
-        Position = Vector2.new(10, 100),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddLabel({
-        Text = "Server Region: US", -- Giả định
-        Position = Vector2.new(10, 120),
-        Size = Vector2.new(270, 20)
-    })
-    local inServerLabel = UserInfoTab:AddLabel({
-        Text = "In server for: Calculating...",
-        Position = Vector2.new(10, 140),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddButton({
-        Text = "Join Script",
-        Position = Vector2.new(10, 160),
-        Size = Vector2.new(270, 30),
-        Callback = function()
-            if setclipboard then
-                setclipboard("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link script!", Duration = 3 })
-            else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua", Duration = 5 })
-            end
-        end
-    })
-
-    -- Wave Section (Executor Info)
-    UserInfoTab:AddLabel({
-        Text = "WAVE",
-        Position = Vector2.new(300, 50),
-        Size = Vector2.new(270, 20)
-    })
-    local executorLabel = UserInfoTab:AddLabel({
-        Text = "Executor: Unknown",
-        Position = Vector2.new(300, 80),
-        Size = Vector2.new(270, 20)
-    })
+    -- Tab: User Info (Chuyển thông tin từ infoFrame vào đây)
     local executorName = "Unknown"
     if syn then executorName = "Synapse X"
     elseif fluxus then executorName = "Fluxus"
     elseif krnl then executorName = "Krnl"
     elseif delta then executorName = "Delta"
     elseif getexecutorname then executorName = getexecutorname() end
-    executorLabel.Text = "Executor: " .. executorName
+
+    UserInfoTab:AddText({
+        Text = "Hello, " .. player.Name,
+        Position = Vector2.new(10, 10),
+        Size = Vector2.new(560, 30)
+    })
+
+    -- Thêm thông tin từ infoFrame vào tab User Info
+    local fpsLabel = UserInfoTab:AddText({
+        Text = "FPS: 0",
+        Position = Vector2.new(10, 40),
+        Size = Vector2.new(560, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "User: " .. player.Name,
+        Position = Vector2.new(10, 60),
+        Size = Vector2.new(560, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Executor: " .. executorName,
+        Position = Vector2.new(10, 80),
+        Size = Vector2.new(560, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Thank You for Trusting Lion Hub",
+        Position = Vector2.new(10, 100),
+        Size = Vector2.new(560, 20)
+    })
+
+    -- Server Info Section
+    UserInfoTab:AddText({
+        Text = "SERVER",
+        Position = Vector2.new(10, 130),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Players: " .. #Players:GetPlayers() .. "/" .. game.Players.MaxPlayers,
+        Position = Vector2.new(10, 150),
+        Size = Vector2.new(270, 20)
+    })
+    local latencyLabel = UserInfoTab:AddText({
+        Text = "Latency: Calculating...",
+        Position = Vector2.new(10, 170),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Server Region: US", -- Giả định
+        Position = Vector2.new(10, 190),
+        Size = Vector2.new(270, 20)
+    })
+    local inServerLabel = UserInfoTab:AddText({
+        Text = "In server for: Calculating...",
+        Position = Vector2.new(10, 210),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddButton({
+        Text = "Join Script",
+        Position = Vector2.new(10, 230),
+        Size = Vector2.new(270, 30),
+        Callback = function()
+            if setclipboard then
+                setclipboard("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua")
+                Luna:Notify({ Title = "LionHub", Text = "Copied script link!", Duration = 3 })
+            else
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua", Duration = 5 })
+            end
+        end
+    })
+
+    -- Wave Section (Executor Info)
+    UserInfoTab:AddText({
+        Text = "WAVE",
+        Position = Vector2.new(300, 130),
+        Size = Vector2.new(270, 20)
+    })
+    local executorLabel = UserInfoTab:AddText({
+        Text = "Executor: " .. executorName,
+        Position = Vector2.new(300, 150),
+        Size = Vector2.new(270, 20)
+    })
 
     -- Friends Section
-    UserInfoTab:AddLabel({
+    UserInfoTab:AddText({
         Text = "FRIENDS",
-        Position = Vector2.new(300, 110),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddLabel({
-        Text = "In Server: 0 friends", -- Giả định
-        Position = Vector2.new(300, 140),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddLabel({
-        Text = "Online: 2 friends", -- Giả định
-        Position = Vector2.new(300, 160),
-        Size = Vector2.new(270, 20)
-    })
-    UserInfoTab:AddLabel({
-        Text = "Offline: 28 friends", -- Giả định
         Position = Vector2.new(300, 180),
         Size = Vector2.new(270, 20)
     })
-    UserInfoTab:AddLabel({
-        Text = "All: 100 friends", -- Giả định
+    UserInfoTab:AddText({
+        Text = "In Server: 0 friends", -- Giả định
         Position = Vector2.new(300, 200),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Online: 2 friends", -- Giả định
+        Position = Vector2.new(300, 220),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "Offline: 28 friends", -- Giả định
+        Position = Vector2.new(300, 240),
+        Size = Vector2.new(270, 20)
+    })
+    UserInfoTab:AddText({
+        Text = "All: 100 friends", -- Giả định
+        Position = Vector2.new(300, 260),
         Size = Vector2.new(270, 20)
     })
 
     -- Discord Section
-    UserInfoTab:AddLabel({
+    UserInfoTab:AddText({
         Text = "DISCORD",
-        Position = Vector2.new(10, 210),
+        Position = Vector2.new(10, 270),
         Size = Vector2.new(560, 20)
     })
     UserInfoTab:AddButton({
         Text = "Tap to join the Discord Server",
-        Position = Vector2.new(10, 240),
+        Position = Vector2.new(10, 290),
         Size = Vector2.new(560, 30),
         Callback = function()
             local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
@@ -561,7 +583,7 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ mở link Discord. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
@@ -569,7 +591,7 @@ function loadMainUI()
     -- Tab: Utilities
     -- Anti AFK
     local antiAfkEnabled = false
-    UtilitiesTab:AddLabel({
+    UtilitiesTab:AddText({
         Text = "ANTI AFK",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 20)
@@ -588,9 +610,9 @@ function loadMainUI()
                         wait(10)
                     end
                 end)
-                Luna:Notify({ Title = "LionHub", Text = "Anti AFK đã được bật!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Anti AFK enabled!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Anti AFK đã được tắt!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Anti AFK disabled!", Duration = 3 })
             end
             UtilitiesTab:AddButton({
                 Text = "Toggle Anti AFK (" .. (antiAfkEnabled and "ON" or "OFF") .. ")",
@@ -603,14 +625,14 @@ function loadMainUI()
 
     -- Rejoin Game
     local rejoinEnabled = false
-    local rejoinTime = 300 -- 5 phút (300 giây)
+    local rejoinTime = 300 -- 5 minutes (300 seconds)
     local rejoinTimer = rejoinTime
-    local rejoinLabel = UtilitiesTab:AddLabel({
+    local rejoinLabel = UtilitiesTab:AddText({
         Text = "Rejoin Timer: " .. formatTime(rejoinTimer),
         Position = Vector2.new(10, 100),
         Size = Vector2.new(560, 20)
     })
-    UtilitiesTab:AddLabel({
+    UtilitiesTab:AddText({
         Text = "REJOIN GAME",
         Position = Vector2.new(10, 70),
         Size = Vector2.new(560, 20)
@@ -634,9 +656,9 @@ function loadMainUI()
                         wait(1)
                     end
                 end)
-                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin đã được bật!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin enabled!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin đã được tắt!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Auto Rejoin disabled!", Duration = 3 })
             end
             UtilitiesTab:AddButton({
                 Text = "Toggle Auto Rejoin (" .. (rejoinEnabled and "ON" or "OFF") .. ")",
@@ -649,7 +671,7 @@ function loadMainUI()
 
     -- Join JobID
     local jobIdInput = ""
-    UtilitiesTab:AddLabel({
+    UtilitiesTab:AddText({
         Text = "JOIN JOBID",
         Position = Vector2.new(10, 170),
         Size = Vector2.new(560, 20)
@@ -669,37 +691,37 @@ function loadMainUI()
         Callback = function()
             if jobIdInput ~= "" then
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, jobIdInput, player)
-                Luna:Notify({ Title = "LionHub", Text = "Đang tham gia server với JobID: " .. jobIdInput, Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Joining server with JobID: " .. jobIdInput, Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Vui lòng nhập JobID!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Please enter a JobID!", Duration = 3 })
             end
         end
     })
 
     -- Tab: UI LIB By Luna (Not Mine)
-    UILibTab:AddLabel({
+    UILibTab:AddText({
         Text = "This UI is powered by Luna Interface Suite",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30)
     })
-    UILibTab:AddLabel({
+    UILibTab:AddText({
         Text = "Created by Nebula Softworks",
         Position = Vector2.new(10, 40),
         Size = Vector2.new(560, 20)
     })
-    UILibTab:AddLabel({
+    UILibTab:AddText({
         Text = "Source: https://github.com/Nebula-Softworks/Luna-Interface-Suite",
         Position = Vector2.new(10, 60),
         Size = Vector2.new(560, 20)
     })
-    UILibTab:AddLabel({
+    UILibTab:AddText({
         Text = "Note: This UI library is not created by me.",
         Position = Vector2.new(10, 90),
         Size = Vector2.new(560, 20)
     })
 
     -- Tab: All UI Executor Script
-    AllUIExecutorTab:AddLabel({
+    AllUIExecutorTab:AddText({
         Text = "ALL UI EXECUTOR SCRIPTS",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30)
@@ -711,9 +733,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/shlexware/Orion/main/source")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link Orion UI!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Copied Orion UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://raw.githubusercontent.com/shlexware/Orion/main/source", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/shlexware/Orion/main/source", Duration = 5 })
             end
         end
     })
@@ -724,9 +746,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link WindUI!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Copied WindUI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ItzWind/Wind-UI/main/WindUI.lua", Duration = 5 })
             end
         end
     })
@@ -737,9 +759,9 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link Fluent UI!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Copied Fluent UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Main.lua", Duration = 5 })
             end
         end
     })
@@ -750,25 +772,25 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép link Arceus UI!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Copied Arceus UI link!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Link: https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Link: https://raw.githubusercontent.com/ArceusX/arceus-ui/main/source.lua", Duration = 5 })
             end
         end
     })
 
-    -- Tab: Setting UI
-    SettingUITab:AddLabel({
+    -- Tab: UI Settings
+    UISettingsTab:AddText({
         Text = "UI SETTINGS",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30)
     })
-    SettingUITab:AddLabel({
+    UISettingsTab:AddText({
         Text = "Theme: Dark",
         Position = Vector2.new(10, 50),
         Size = Vector2.new(270, 20)
     })
-    SettingUITab:AddButton({
+    UISettingsTab:AddButton({
         Text = "Toggle Theme (Dark/Light)",
         Position = Vector2.new(10, 80),
         Size = Vector2.new(270, 30),
@@ -776,12 +798,12 @@ function loadMainUI()
             Luna:Notify({ Title = "LionHub", Text = "Theme toggle is not supported by Luna Interface Suite.", Duration = 3 })
         end
     })
-    SettingUITab:AddLabel({
+    UISettingsTab:AddText({
         Text = "Window Size: 600x400",
         Position = Vector2.new(300, 50),
         Size = Vector2.new(270, 20)
     })
-    SettingUITab:AddButton({
+    UISettingsTab:AddButton({
         Text = "Resize Window (Smaller)",
         Position = Vector2.new(300, 80),
         Size = Vector2.new(270, 30),
@@ -790,7 +812,7 @@ function loadMainUI()
             Luna:Notify({ Title = "LionHub", Text = "Window resized to 500x300!", Duration = 3 })
         end
     })
-    SettingUITab:AddButton({
+    UISettingsTab:AddButton({
         Text = "Resize Window (Larger)",
         Position = Vector2.new(300, 120),
         Size = Vector2.new(270, 30),
@@ -799,7 +821,7 @@ function loadMainUI()
             Luna:Notify({ Title = "LionHub", Text = "Window resized to 700x500!", Duration = 3 })
         end
     })
-    SettingUITab:AddButton({
+    UISettingsTab:AddButton({
         Text = "Toggle UI (Press T or Click)",
         Position = Vector2.new(10, 160),
         Size = Vector2.new(560, 30),
@@ -809,12 +831,12 @@ function loadMainUI()
     })
 
     -- Tab: Contact
-    ContactTab:AddLabel({
+    ContactTab:AddText({
         Text = "CONTACT INFORMATION",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30)
     })
-    ContactTab:AddLabel({
+    ContactTab:AddText({
         Text = "Discord: https://discord.gg/wmUmGVG6ut",
         Position = Vector2.new(10, 50),
         Size = Vector2.new(560, 20)
@@ -840,11 +862,11 @@ function loadMainUI()
                     })
                 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ mở link Discord. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support Discord link. Link: https://discord.gg/wmUmGVG6ut", Duration = 5 })
             end
         end
     })
-    ContactTab:AddLabel({
+    ContactTab:AddText({
         Text = "Email: lionhub.support@example.com",
         Position = Vector2.new(10, 120),
         Size = Vector2.new(560, 20)
@@ -856,49 +878,52 @@ function loadMainUI()
         Callback = function()
             if setclipboard then
                 setclipboard("lionhub.support@example.com")
-                Luna:Notify({ Title = "LionHub", Text = "Đã sao chép email!", Duration = 3 })
+                Luna:Notify({ Title = "LionHub", Text = "Email copied!", Duration = 3 })
             else
-                Luna:Notify({ Title = "LionHub", Text = "Executor không hỗ trợ sao chép. Email: lionhub.support@example.com", Duration = 5 })
+                Luna:Notify({ Title = "LionHub", Text = "Executor does not support clipboard. Email: lionhub.support@example.com", Duration = 5 })
             end
         end
     })
 
     -- Tab: Credits
-    CreditsTab:AddLabel({
+    CreditsTab:AddText({
         Text = "CREDITS",
         Position = Vector2.new(10, 10),
         Size = Vector2.new(560, 30)
     })
-    CreditsTab:AddLabel({
+    CreditsTab:AddText({
         Text = "Developer: LionHub Team",
         Position = Vector2.new(10, 50),
         Size = Vector2.new(560, 20)
     })
-    CreditsTab:AddLabel({
+    CreditsTab:AddText({
         Text = "UI Library: Luna Interface Suite by Nebula Softworks",
         Position = Vector2.new(10, 80),
         Size = Vector2.new(560, 20)
     })
-    CreditsTab:AddLabel({
+    CreditsTab:AddText({
         Text = "Special Thanks: All users who support Lion Hub!",
         Position = Vector2.new(10, 110),
         Size = Vector2.new(560, 20)
     })
 
-    -- Cập nhật thông tin động (Latency, In Server For)
+    -- Cập nhật thông tin động (FPS, Latency, In Server For)
     local joinTime = tick()
     local lastTime = tick()
     local frameCount = 0
     RunService.RenderStepped:Connect(function()
-        -- Cập nhật Latency (Ping)
+        -- Cập nhật FPS
         frameCount = frameCount + 1
         local currentTime = tick()
         if currentTime - lastTime >= 1 then
             local fps = math.floor(frameCount / (currentTime - lastTime))
-            latencyLabel.Text = "Latency: " .. tostring(math.floor(player:GetNetworkPing() * 1000)) .. "ms"
+            fpsLabel.Text = "FPS: " .. fps
             frameCount = 0
             lastTime = currentTime
         end
+
+        -- Cập nhật Latency (Ping)
+        latencyLabel.Text = "Latency: " .. tostring(math.floor(player:GetNetworkPing() * 1000)) .. "ms"
 
         -- Cập nhật thời gian trong server
         local timeInServer = tick() - joinTime
@@ -953,157 +978,3 @@ function loadMainUI()
         end)
     end
 end
-
--- Tạo ScreenGui cho thông tin
-local infoGui = Instance.new("ScreenGui")
-infoGui.Name = "InfoGui"
-infoGui.Parent = playerGui
-infoGui.ResetOnSpawn = false
-
--- Tạo Frame cho thông tin
-local infoFrame = Instance.new("Frame")
-if isMobile then
-    infoFrame.Size = UDim2.new(0, 300, 0, 180) -- Giảm chiều cao vì bỏ VN Date
-    infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
-else
-    infoFrame.Size = UDim2.new(0, 350, 0, 200) -- Giảm chiều cao vì bỏ VN Date
-    infoFrame.Position = UDim2.new(0.5, -175, 0, 15)
-end
-infoFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-infoFrame.BorderSizePixel = 0
-infoFrame.Parent = infoGui
-
--- Thêm tính năng kéo thả
-local dragging, dragInput, dragStart, startPos
-infoFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = infoFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
-        end)
-    end
-end)
-
-infoFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        infoFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-local infoCorner = Instance.new("UICorner")
-infoCorner.CornerRadius = UDim.new(0, 12)
-infoCorner.Parent = infoFrame
-
--- TextLabel "Mừng 50 Năm Giải Phóng Đất Nước"
-local celebrationLabel = Instance.new("TextLabel")
-celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
-celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
-celebrationLabel.BackgroundTransparency = 1
-celebrationLabel.Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳"
-celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-celebrationLabel.TextSize = isMobile and 20 or 24
-celebrationLabel.Font = Enum.Font.GothamBold
-celebrationLabel.TextXAlignment = Enum.TextXAlignment.Center
-celebrationLabel.Parent = infoFrame
-
--- TextLabel FPS
-local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, 0, 0, 20)
-fpsLabel.Position = UDim2.new(0, 0, 0, 45)
-fpsLabel.BackgroundTransparency = 1
-fpsLabel.Text = "FPS: 0"
-fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsLabel.TextSize = isMobile and 16 or 18
-fpsLabel.Font = Enum.Font.Gotham
-fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
-fpsLabel.Parent = infoFrame
-
--- TextLabel User Name
-local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, 0, 0, 20)
-userLabel.Position = UDim2.new(0, 0, 0, 65)
-userLabel.BackgroundTransparency = 1
-userLabel.Text = "User: " .. player.Name
-userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-userLabel.TextSize = isMobile and 14 or 16
-userLabel.Font = Enum.Font.Gotham
-userLabel.TextXAlignment = Enum.TextXAlignment.Center
-userLabel.Parent = infoFrame
-
--- TextLabel Executor
-local executorLabel = Instance.new("TextLabel")
-executorLabel.Size = UDim2.new(1, 0, 0, 20)
-executorLabel.Position = UDim2.new(0, 0, 0, 85) -- Điều chỉnh vị trí vì bỏ VN Date
-executorLabel.BackgroundTransparency = 1
-local executorName = "Unknown"
-if syn then executorName = "Synapse X"
-elseif fluxus then executorName = "Fluxus"
-elseif krnl then executorName = "Krnl"
-elseif delta then executorName = "Delta"
-elseif getexecutorname then executorName = getexecutorname() end
-executorLabel.Text = "Executor: " .. executorName
-executorLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-executorLabel.TextSize = isMobile and 14 or 16
-executorLabel.Font = Enum.Font.Gotham
-executorLabel.TextXAlignment = Enum.TextXAlignment.Center
-executorLabel.Parent = infoFrame
-
--- TextLabel cảm ơn với hiệu ứng đánh máy
-local thanksLabel = Instance.new("TextLabel")
-thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 115) -- Điều chỉnh vị trí vì bỏ VN Date
-thanksLabel.BackgroundTransparency = 1
-thanksLabel.Text = ""
-thanksLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-thanksLabel.TextSize = isMobile and 14 or 16
-thanksLabel.Font = Enum.Font.GothamItalic
-thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
-thanksLabel.Parent = infoFrame
-
-local thanksText = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
-local isTyping = true
-local currentIndex = 0
-
-spawn(function()
-    while true do
-        if isTyping then
-            currentIndex = currentIndex + 1
-            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
-            if currentIndex >= #thanksText then
-                isTyping = false
-                wait(1)
-            end
-        else
-            currentIndex = currentIndex - 1
-            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
-            if currentIndex <= 0 then
-                isTyping = true
-                wait(0.5)
-            end
-        end
-        wait(0.1)
-    end
-end)
-
--- Cập nhật FPS
-local lastTime = tick()
-local frameCount = 0
-RunService.RenderStepped:Connect(function()
-    frameCount = frameCount + 1
-    local currentTime = tick()
-    if currentTime - lastTime >= 1 then
-        local fps = math.floor(frameCount / (currentTime - lastTime))
-        fpsLabel.Text = "FPS: " .. fps
-        frameCount = 0
-        lastTime = currentTime
-    end
-end)
