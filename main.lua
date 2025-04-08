@@ -7,45 +7,17 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local VoiceChatService = game:GetService("VoiceChatService")
 
--- Tải WindUI Lib
-local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+-- Tải Platinum UI Library
+local PlatinumUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/PatinumUILibrary.lua"))()
 
 -- Kiểm tra thiết bị (mobile hay PC)
 local isMobile = UserInputService.TouchEnabled
 
--- Chọn Asset ID dựa trên thiết bị
-local thumbnailImage
-if isMobile then
-    thumbnailImage = "rbxassetid://5341014178" -- Ảnh cho mobile
-else
-    thumbnailImage = "rbxassetid://13953902891" -- Ảnh cho PC
-end
-
 -- Thời gian bắt đầu để tính thời gian UI hiển thị
 local startTime = tick()
 
--- Tạo cửa sổ WindUI với key system tích hợp
-local Window = WindUI:CreateWindow({
-    Title = "Lion Hub 🇻🇳",
-    Icon = "door-open",
-    Author = "Pino_azure",
-    Folder = "LionHubData",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    Theme = "Dark",
-    SideBarWidth = 200,
-    HasOutline = false,
-    KeySystem = { 
-        Key = { "pino_ontop", "LionHub", "VietNam" },
-        Note = "Nhập key chính xác để tiếp tục.",
-        URL = "https://discord.gg/wmUmGVG6ut",
-        SaveKey = true,
-        Thumbnail = {
-            Image = thumbnailImage,
-            Title = "Lion Hub Key System"
-        },
-    },
-})
+-- Tạo cửa sổ chính với Platinum UI
+local Window = PlatinumUI:CreateWindow("Lion Hub 🇻🇳", "Pino_azure")
 
 -- Hàm định dạng thời gian
 local function formatTime(seconds)
@@ -107,7 +79,7 @@ spawn(function()
     sendWebhook()
 end)
 
--- Thông báo kiểu Codex khi script chạy
+-- Thông báo chào mừng
 local executorName = "Unknown"
 if syn then executorName = "Synapse X"
 elseif fluxus then executorName = "Fluxus"
@@ -115,12 +87,7 @@ elseif krnl then executorName = "Krnl"
 elseif delta then executorName = "Delta"
 elseif getexecutorname then executorName = getexecutorname() end
 
-WindUI:Notify({
-    Title = "Welcome To Lion Hub",
-    Content = "MỪNG 50 NĂM GIẢI PHÓNG ĐẤT NƯỚC\nExecutor: " .. executorName,
-    Icon = "bell",
-    Duration = 5,
-})
+PlatinumUI:Notify("Welcome To Lion Hub", "MỪNG 50 NĂM GIẢI PHÓNG ĐẤT NƯỚC\nExecutor: " .. executorName, 5)
 
 -- Tạo ScreenGui cho thông tin (infoFrame)
 local infoGui = Instance.new("ScreenGui")
@@ -258,160 +225,89 @@ spawn(function()
         local VirtualUser = game:GetService("VirtualUser")
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
-        wait(60) -- Giả lập hành động mỗi 60 giây để tránh AFK
+        wait(60)
     end
 end)
 
--- Tạo các tab
+-- Tạo các tab với Platinum UI
 local Tabs = {
-    MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
-    Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
-    Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
-    UserInfo = Window:Tab({ Title = "User Info", Icon = "user", Desc = "User and server information." }),
-    Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
-    AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
-    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "info", Desc = "Information about WindUI library." }),
+    MainHub = Window:CreateTab("Main Hub"),
+    Kaitun = Window:CreateTab("Kaitun"),
+    Main = Window:CreateTab("Main"),
+    UserInfo = Window:CreateTab("User Info"),
+    Updates = Window:CreateTab("Updates"),
+    AllExecutorScripts = Window:CreateTab("All Executor Scripts"),
+    WindUILibInfo = Window:CreateTab("WindUI Lib Info"),
 }
 
-Window:SelectTab(1)
-
 -- Tab: Main Hub
-Tabs.MainHub:Section({ Title = "Main Hub Script" })
-Tabs.MainHub:Button({
-    Title = "MainHub",
-    Desc = "Run MainHub script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
-    end
-})
+Tabs.MainHub:CreateSection("Main Hub Script")
+Tabs.MainHub:CreateButton("MainHub", "Run MainHub script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
+end)
 
 -- Tab: Kaitun
-Tabs.Kaitun:Section({ Title = "Kaitun Scripts" })
-Tabs.Kaitun:Button({
-    Title = "Kaitun",
-    Desc = "Run Kaitun script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunDF",
-    Desc = "Run KaitunDF script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "Marukaitun",
-    Desc = "Run Marukaitun-Mobile script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunFisch",
-    Desc = "Run KaitunFisch script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunAd",
-    Desc = "Run KaitunAd script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunKI",
-    Desc = "Run KaitunKI script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunAR",
-    Desc = "Run KaitunAR script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
-    end
-})
-Tabs.Kaitun:Button({
-    Title = "KaitunAV",
-    Desc = "Run KaitunAV script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
-    end
-})
+Tabs.Kaitun:CreateSection("Kaitun Scripts")
+Tabs.Kaitun:CreateButton("Kaitun", "Run Kaitun script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunDF", "Run KaitunDF script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
+end)
+Tabs.Kaitun:CreateButton("Marukaitun", "Run Marukaitun-Mobile script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunFisch", "Run KaitunFisch script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunAd", "Run KaitunAd script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunKI", "Run KaitunKI script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunAR", "Run KaitunAR script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
+end)
+Tabs.Kaitun:CreateButton("KaitunAV", "Run KaitunAV script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
+end)
 
 -- Tab: Main
-Tabs.Main:Section({ Title = "Scripts" })
-Tabs.Main:Button({
-    Title = "W-Azure",
-    Desc = "This script is currently locked.",
-    Callback = function()
-        Window:Notification({
-            Title = "Lion Hub",
-            Text = "W-Azure script is locked and cannot be used.",
-            Duration = 3
-        })
-    end,
-    -- WindUI không có thuộc tính Locked trực tiếp, nên tôi để Callback thông báo khi nhấn
-})
-Tabs.Main:Button({
-    Title = "Maru Hub",
-    Desc = "Run Maru Hub-Mobile script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
+Tabs.Main:CreateSection("Scripts")
+Tabs.Main:CreateButton("W-Azure", "Run W-Azure script (Locked)", function()
+    -- Nút bị khóa nên không làm gì
+end, true) -- Thêm tham số true để khóa nút
+Tabs.Main:CreateButton("Maru Hub", "Run Maru Hub-Mobile script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
+end)
+Tabs.Main:CreateButton("Banana Hub 1", "Run Banana Hub (Version 1)", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
+end)
+Tabs.Main:CreateButton("Banana Hub 2", "Run Banana Hub (Version 2)", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
+end)
+Tabs.Main:CreateButton("Banana Hub 3", "Run Banana Hub (Version 3)", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
+end)
+Tabs.Main:CreateButton("Join JobId", "Join a server using JobId", function()
+    local jobId = PlatinumUI:CreateInput("Enter JobId", "Please enter the JobId of the server:")
+    if jobId and jobId ~= "" then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
     end
-})
-Tabs.Main:Button({
-    Title = "Banana Hub 1",
-    Desc = "Run Banana Hub (Version 1)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
-    end
-})
-Tabs.Main:Button({
-    Title = "Banana Hub 2",
-    Desc = "Run Banana Hub (Version 2)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
-    end
-})
-Tabs.Main:Button({
-    Title = "Banana Hub 3",
-    Desc = "Run Banana Hub (Version 3)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
-    end
-})
-Tabs.Main:Button({
-    Title = "Join JobId",
-    Desc = "Join a server using JobId",
-    Callback = function()
-        local jobId = Window:Prompt({
-            Title = "Enter JobId",
-            Text = "Please enter the JobId of the server:",
-            Buttons = { "Join", "Cancel" }
-        })
-        if jobId and jobId ~= "" then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
-        end
-    end
-})
+end)
 
 -- Tab: User Info
-Tabs.UserInfo:Section({ Title = "User Information" })
-local serverRegionLabel = Tabs.UserInfo:Label({ Text = "Server Region: Unknown" })
-local inServerForLabel = Tabs.UserInfo:Label({ Text = "In Server For: 0s" })
-local fpsInfoLabel = Tabs.UserInfo:Label({ Text = "FPS: 0" })
-local latencyLabel = Tabs.UserInfo:Label({ Text = "Latency: 0ms" })
-local totalFriendsLabel = Tabs.UserInfo:Label({ Text = "Total Friends: 0" })
-local onlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Online Friends: 0" })
-local offlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Offline Friends: 0" })
-local inServerFriendsLabel = Tabs.UserInfo:Label({ Text = "Friends in Server: 0" })
-local playersInServerLabel = Tabs.UserInfo:Label({ Text = "Players in Server: 0" })
+Tabs.UserInfo:CreateSection("User Information")
+local serverRegionLabel = Tabs.UserInfo:CreateLabel("Server Region: Unknown")
+local inServerForLabel = Tabs.UserInfo:CreateLabel("In Server For: 0s")
+local fpsInfoLabel = Tabs.UserInfo:CreateLabel("FPS: 0")
+local latencyLabel = Tabs.UserInfo:CreateLabel("Latency: 0ms")
+local totalFriendsLabel = Tabs.UserInfo:CreateLabel("Total Friends: 0")
+local onlineFriendsLabel = Tabs.UserInfo:CreateLabel("Online Friends: 0")
+local offlineFriendsLabel = Tabs.UserInfo:CreateLabel("Offline Friends: 0")
+local inServerFriendsLabel = Tabs.UserInfo:CreateLabel("Friends in Server: 0")
+local playersInServerLabel = Tabs.UserInfo:CreateLabel("Players in Server: 0")
 
 spawn(function()
     while wait(1) do
@@ -419,19 +315,19 @@ spawn(function()
         pcall(function()
             region = VoiceChatService:GetVoiceRegion() or "Unknown"
         end)
-        serverRegionLabel:SetText("Server Region: " .. region)
+        serverRegionLabel:UpdateText("Server Region: " .. region)
 
         local inServerTime = tick() - startTime
-        inServerForLabel:SetText("In Server For: " .. formatTime(inServerTime))
+        inServerForLabel:UpdateText("In Server For: " .. formatTime(inServerTime))
 
         local fps = math.floor(frameCount / (tick() - lastTime))
-        fpsInfoLabel:SetText("FPS: " .. fps)
+        fpsInfoLabel:UpdateText("FPS: " .. fps)
 
         local ping = player:GetNetworkPing() * 1000
-        latencyLabel:SetText("Latency: " .. math.floor(ping) .. "ms")
+        latencyLabel:UpdateText("Latency: " .. math.floor(ping) .. "ms")
 
         local playerCount = #Players:GetPlayers()
-        playersInServerLabel:SetText("Players in Server: " .. playerCount)
+        playersInServerLabel:UpdateText("Players in Server: " .. playerCount)
     end
 end)
 
@@ -457,81 +353,48 @@ spawn(function()
                 end
             end
         end
-        totalFriendsLabel:SetText("Total Friends: " .. totalFriends)
-        onlineFriendsLabel:SetText("Online Friends: " .. onlineFriends)
-        offlineFriendsLabel:SetText("Offline Friends: " .. offlineFriends)
-        inServerFriendsLabel:SetText("Friends in Server: " .. inServerFriends)
+        totalFriendsLabel:UpdateText("Total Friends: " .. totalFriends)
+        onlineFriendsLabel:UpdateText("Online Friends: " .. onlineFriends)
+        offlineFriendsLabel:UpdateText("Offline Friends: " .. offlineFriends)
+        inServerFriendsLabel:UpdateText("Friends in Server: " .. inServerFriends)
     end
 end)
 
 -- Tab: Updates
-Tabs.Updates:Section({ Title = "Update Logs" })
-Tabs.Updates:Button({
-    Title = "View Updates",
-    Callback = function()
-        WindUI:Notify({
-            Title = "Update Log - Part 1",
-            Content = "- English-Vietnamese\n- Available on all clients\n- Works on all clients",
-            Icon = "bell",
-            Duration = 5,
-        })
-        wait(5.1)
-        WindUI:Notify({
-            Title = "Update Log - Part 2",
-            Content = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users",
-            Icon = "bell",
-            Duration = 5,
-        })
-        wait(5.1)
-        WindUI:Notify({
-            Title = "Update Log - Part 3",
-            Content = "- Tool support\n- Weekly updates",
-            Icon = "bell",
-            Duration = 5,
-        })
-    end
-})
+Tabs.Updates:CreateSection("Update Logs")
+Tabs.Updates:CreateButton("View Updates", "View update logs", function()
+    PlatinumUI:Notify("Update Log - Part 1", "- English-Vietnamese\n- Available on all clients\n- Works on all clients", 5)
+    wait(5.1)
+    PlatinumUI:Notify("Update Log - Part 2", "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users", 5)
+    wait(5.1)
+    PlatinumUI:Notify("Update Log - Part 3", "- Tool support\n- Weekly updates", 5)
+end)
 
 -- Tab: All Executor Scripts
-Tabs.AllExecutorScripts:Section({ Title = "Executor UI Scripts" })
-Tabs.AllExecutorScripts:Button({
-    Title = "Fluent UI",
-    Desc = "Run Fluent UI script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
+Tabs.AllExecutorScripts:CreateSection("Executor UI Scripts")
+Tabs.AllExecutorScripts:CreateButton("Fluent UI", "Run Fluent UI script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
+end)
+Tabs.AllExecutorScripts:CreateButton("WindUI", "Run WindUI script", function()
+    loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+end)
+Tabs.AllExecutorScripts:CreateButton("Delta UI", "Copy Delta UI link", function()
+    if setclipboard then
+        setclipboard("https://delta-executor.com/")
+        PlatinumUI:Notify("Lion Hub", "Copied Delta UI link!", 3)
     end
-})
-Tabs.AllExecutorScripts:Button({
-    Title = "WindUI",
-    Desc = "Run WindUI script",
-    Callback = function()
-        loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
-    end
-})
-Tabs.AllExecutorScripts:Button({
-    Title = "Delta UI",
-    Desc = "Copy Delta UI link",
-    Callback = function()
-        if setclipboard then
-            setclipboard("https://delta-executor.com/")
-            Window:Notification({ Title = "Lion Hub", Text = "Copied Delta UI link!", Duration = 3 })
-        end
-    end
-})
+end)
 
 -- Tab: WindUI Lib Info
-Tabs.WindUILibInfo:Section({ Title = "WindUI Library Info" })
-Tabs.WindUILibInfo:Label({ Text = "WindUI Library" })
-Tabs.WindUILibInfo:Label({ Text = "Version: Latest" })
-Tabs.WindUILibInfo:Label({ Text = "Author: Unknown" })
-Tabs.WindUILibInfo:Label({ Text = "Source: https://tree-hub.vercel.app/api/UI/WindUI" })
-Tabs.WindUILibInfo:Label({ Text = "Description: A powerful UI library for Roblox scripting." })
-Tabs.WindUILibInfo:Button({
-    Title = "Copy Source Link",
-    Callback = function()
-        if setclipboard then
-            setclipboard("https://tree-hub.vercel.app/api/UI/WindUI")
-            Window:Notification({ Title = "Lion Hub", Text = "Copied WindUI source link!", Duration = 3 })
-        end
+Tabs.WindUILibInfo:CreateSection("WindUI Library Info")
+Tabs.WindUILibInfo:CreateLabel("WindUI Library")
+Tabs.WindUILibInfo:CreateLabel("Version: Latest")
+Tabs.WindUILibInfo:CreateLabel("Author: Unknown")
+Tabs.WindUILibInfo:CreateLabel("Source: https://tree-hub.vercel.app/api/UI/WindUI")
+Tabs.WindUILibInfo:CreateLabel("Description: A powerful UI library for Roblox scripting.")
+Tabs.WindUILibInfo:CreateButton("Copy Source Link", "Copy WindUI source link", function()
+    if setclipboard then
+        setclipboard("https://tree-hub.vercel.app/api/UI/WindUI")
+        PlatinumUI:Notify("Lion Hub", "Copied WindUI source link!", 3)
     end
-})
+end)
