@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
@@ -121,6 +122,136 @@ WindUI:Notify({
     Duration = 5,
 })
 
+-- Tạo ScreenGui cho thông tin (infoFrame)
+local infoGui = Instance.new("ScreenGui")
+infoGui.Name = "InfoGui"
+infoGui.Parent = playerGui
+infoGui.ResetOnSpawn = false
+
+local infoFrame = Instance.new("Frame")
+if isMobile then
+    infoFrame.Size = UDim2.new(0, 250, 0, 160)
+    infoFrame.Position = UDim2.new(0.5, -125, 0, 5)
+else
+    infoFrame.Size = UDim2.new(0, 300, 0, 180)
+    infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
+end
+infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+infoFrame.BorderSizePixel = 0
+infoFrame.Parent = infoGui
+
+local dragging, dragInput, dragStart, startPos
+infoFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = infoFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+infoFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        infoFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local infoCorner = Instance.new("UICorner")
+infoCorner.CornerRadius = UDim.new(0, 10)
+infoCorner.Parent = infoFrame
+
+local celebrationLabel = Instance.new("TextLabel")
+celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
+celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
+celebrationLabel.BackgroundTransparency = 1
+celebrationLabel.Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳"
+celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+celebrationLabel.TextSize = isMobile and 18 or 22
+celebrationLabel.Font = Enum.Font.SourceSansBold
+celebrationLabel.TextXAlignment = Enum.TextXAlignment.Center
+celebrationLabel.Parent = infoFrame
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(1, 0, 0, 20)
+fpsLabel.Position = UDim2.new(0, 0, 0, 45)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Text = "FPS: 0"
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.TextSize = isMobile and 14 or 16
+fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
+fpsLabel.Parent = infoFrame
+
+local userLabel = Instance.new("TextLabel")
+userLabel.Size = UDim2.new(1, 0, 0, 20)
+userLabel.Position = UDim2.new(0, 0, 0, 65)
+userLabel.BackgroundTransparency = 1
+userLabel.Text = "User: " .. player.Name
+userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+userLabel.TextSize = isMobile and 12 or 14
+userLabel.Font = Enum.Font.SourceSans
+userLabel.TextXAlignment = Enum.TextXAlignment.Center
+userLabel.Parent = infoFrame
+
+local vietnamDateLabel = Instance.new("TextLabel")
+vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
+vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
+vietnamDateLabel.BackgroundTransparency = 1
+vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
+vietnamDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+vietnamDateLabel.TextSize = isMobile and 12 or 14
+vietnamDateLabel.Font = Enum.Font.SourceSans
+vietnamDateLabel.TextXAlignment = Enum.TextXAlignment.Center
+vietnamDateLabel.Parent = infoFrame
+
+local executorLabel = Instance.new("TextLabel")
+executorLabel.Size = UDim2.new(1, 0, 0, 20)
+executorLabel.Position = UDim2.new(0, 0, 0, 105)
+executorLabel.BackgroundTransparency = 1
+executorLabel.Text = "Executor: " .. executorName
+executorLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+executorLabel.TextSize = isMobile and 12 or 14
+executorLabel.Font = Enum.Font.SourceSans
+executorLabel.TextXAlignment = Enum.TextXAlignment.Center
+executorLabel.Parent = infoFrame
+
+local thanksLabel = Instance.new("TextLabel")
+thanksLabel.Size = UDim2.new(1, 0, 0, 30)
+thanksLabel.Position = UDim2.new(0, 0, 0, 125)
+thanksLabel.BackgroundTransparency = 1
+thanksLabel.Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
+thanksLabel.TextSize = isMobile and 12 or 14
+thanksLabel.Font = Enum.Font.SourceSansItalic
+thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
+thanksLabel.Parent = infoFrame
+
+local lastTime = tick()
+local frameCount = 0
+
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local currentTime = tick()
+    if currentTime - lastTime >= 1 then
+        local fps = math.floor(frameCount / (currentTime - lastTime))
+        fpsLabel.Text = "FPS: " .. fps
+        frameCount = 0
+        lastTime = currentTime
+    end
+    vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
+end)
+
 -- Anti-AFK
 spawn(function()
     while true do
@@ -137,7 +268,6 @@ local Tabs = {
     Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
     Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
     UserInfo = Window:Tab({ Title = "User Info", Icon = "user", Desc = "User and server information." }),
-    Info = Window:Tab({ Title = "Info", Icon = "info", Desc = "Basic user and executor info." }),
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
     WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "info", Desc = "Information about WindUI library." }),
@@ -218,10 +348,15 @@ Tabs.Kaitun:Button({
 Tabs.Main:Section({ Title = "Scripts" })
 Tabs.Main:Button({
     Title = "W-Azure",
-    Desc = "Run W-Azure script",
+    Desc = "This script is currently locked.",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
-    end
+        Window:Notification({
+            Title = "Lion Hub",
+            Text = "W-Azure script is locked and cannot be used.",
+            Duration = 3
+        })
+    end,
+    -- WindUI không có thuộc tính Locked trực tiếp, nên tôi để Callback thông báo khi nhấn
 })
 Tabs.Main:Button({
     Title = "Maru Hub",
@@ -265,30 +400,6 @@ Tabs.Main:Button({
         end
     end
 })
-
--- Tab: Info (chuyển từ infoGui, không hiệu ứng đánh máy)
-Tabs.Info:Section({ Title = "Basic Information" })
-local infoCelebrationLabel = Tabs.Info:Label({ Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳" })
-local infoFpsLabel = Tabs.Info:Label({ Text = "FPS: 0" })
-local infoUserLabel = Tabs.Info:Label({ Text = "User: " .. player.Name })
-local infoDateLabel = Tabs.Info:Label({ Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600) })
-local infoExecutorLabel = Tabs.Info:Label({ Text = "Executor: " .. executorName })
-local infoThanksLabel = Tabs.Info:Label({ Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub" })
-
-local lastTime = tick()
-local frameCount = 0
-
-RunService.RenderStepped:Connect(function()
-    frameCount = frameCount + 1
-    local currentTime = tick()
-    if currentTime - lastTime >= 1 then
-        local fps = math.floor(frameCount / (currentTime - lastTime))
-        infoFpsLabel:SetText("FPS: " .. fps)
-        frameCount = 0
-        lastTime = currentTime
-    end
-    infoDateLabel:SetText("VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600))
-end)
 
 -- Tab: User Info
 Tabs.UserInfo:Section({ Title = "User Information" })
