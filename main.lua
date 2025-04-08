@@ -107,7 +107,7 @@ spawn(function()
     sendWebhook()
 end)
 
--- Thông báo kiểu Codex khi script chạy
+-- Tạo thông báo kiểu "Achievement Unlocked" cho Welcome
 local executorName = "Unknown"
 if syn then executorName = "Synapse X"
 elseif fluxus then executorName = "Fluxus"
@@ -115,14 +115,65 @@ elseif krnl then executorName = "Krnl"
 elseif delta then executorName = "Delta"
 elseif getexecutorname then executorName = getexecutorname() end
 
-WindUI:Notify({
-    Title = "Welcome To Lion Hub",
-    Content = "MỪNG 50 NĂM GIẢI PHÓNG ĐẤT NƯỚC\nExecutor: " .. executorName,
-    Icon = "bell",
-    Duration = 5,
-})
+local achievementGui = Instance.new("ScreenGui")
+achievementGui.Name = "AchievementGui"
+achievementGui.Parent = playerGui
+achievementGui.ResetOnSpawn = false
 
--- Tạo ScreenGui cho thông tin (infoFrame) và sắp xếp lại thành hai cột
+local achievementFrame = Instance.new("Frame")
+achievementFrame.Size = UDim2.new(0, 300, 0, 80)
+achievementFrame.Position = UDim2.new(1, -310, 0, 10)
+achievementFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+achievementFrame.BorderSizePixel = 0
+achievementFrame.Parent = achievementGui
+achievementFrame.Visible = false
+
+local achievementCorner = Instance.new("UICorner")
+achievementCorner.CornerRadius = UDim.new(0, 8)
+achievementCorner.Parent = achievementFrame
+
+local achievementIcon = Instance.new("ImageLabel")
+achievementIcon.Size = UDim2.new(0, 50, 0, 50)
+achievementIcon.Position = UDim2.new(0, 10, 0.5, -25)
+achievementIcon.BackgroundTransparency = 1
+achievementIcon.Image = "rbxassetid://7072701" -- Icon kiểu danh hiệu
+achievementIcon.Parent = achievementFrame
+
+local achievementTitle = Instance.new("TextLabel")
+achievementTitle.Size = UDim2.new(0, 220, 0, 20)
+achievementTitle.Position = UDim2.new(0, 70, 0, 10)
+achievementTitle.BackgroundTransparency = 1
+achievementTitle.Text = "Welcome To Lion Hub!"
+achievementTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+achievementTitle.TextSize = 16
+achievementTitle.Font = Enum.Font.SourceSansBold
+achievementTitle.TextXAlignment = Enum.TextXAlignment.Left
+achievementTitle.Parent = achievementFrame
+
+local achievementDesc = Instance.new("TextLabel")
+achievementDesc.Size = UDim2.new(0, 220, 0, 40)
+achievementDesc.Position = UDim2.new(0, 70, 0, 30)
+achievementDesc.BackgroundTransparency = 1
+achievementDesc.Text = "MỪNG 50 NĂM GIẢI PHÓNG ĐẤT NƯỚC\nExecutor: " .. executorName
+achievementDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
+achievementDesc.TextSize = 12
+achievementDesc.Font = Enum.Font.SourceSans
+achievementDesc.TextXAlignment = Enum.TextXAlignment.Left
+achievementDesc.TextWrapped = true
+achievementDesc.Parent = achievementFrame
+
+-- Hiệu ứng hiển thị thông báo danh hiệu
+spawn(function()
+    achievementFrame.Visible = true
+    achievementFrame.Position = UDim2.new(1, 0, 0, 10)
+    achievementFrame:TweenPosition(UDim2.new(1, -310, 0, 10), "Out", "Quad", 0.5, true)
+    wait(5)
+    achievementFrame:TweenPosition(UDim2.new(1, 0, 0, 10), "In", "Quad", 0.5, true)
+    wait(0.5)
+    achievementFrame.Visible = false
+end)
+
+-- Tạo ScreenGui cho thông tin (infoFrame) với hai cột
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -130,10 +181,10 @@ infoGui.ResetOnSpawn = false
 
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    infoFrame.Size = UDim2.new(0, 400, 0, 180) -- Tăng chiều rộng, giảm chiều cao
+    infoFrame.Size = UDim2.new(0, 400, 0, 180)
     infoFrame.Position = UDim2.new(0.5, -200, 0, 5)
 else
-    infoFrame.Size = UDim2.new(0, 450, 0, 200) -- Tăng chiều rộng, giảm chiều cao
+    infoFrame.Size = UDim2.new(0, 450, 0, 200)
     infoFrame.Position = UDim2.new(0.5, -225, 0, 10)
 end
 infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -232,13 +283,22 @@ local thanksLabel = Instance.new("TextLabel")
 thanksLabel.Size = UDim2.new(0.5, -10, 0, 30)
 thanksLabel.Position = UDim2.new(0, 5, 0, 125)
 thanksLabel.BackgroundTransparency = 1
-thanksLabel.Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+thanksLabel.Text = ""
 thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
 thanksLabel.TextSize = isMobile and 12 or 14
 thanksLabel.Font = Enum.Font.SourceSansItalic
 thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
 thanksLabel.TextWrapped = true
 thanksLabel.Parent = infoFrame
+
+-- Hiệu ứng đánh máy cho dòng "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+local thanksText = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+spawn(function()
+    for i = 1, #thanksText do
+        thanksLabel.Text = string.sub(thanksText, 1, i)
+        wait(0.05) -- Tốc độ đánh máy (có thể điều chỉnh)
+    end
+end)
 
 -- Cột phải: Thông tin server và bạn bè
 local serverRegionLabel = Instance.new("TextLabel")
@@ -411,6 +471,7 @@ local Tabs = {
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
     WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "code", Desc = "Displays and manages code snippets." }),
+    JoinServer = Window:Tab({ Title = "Join Server", Icon = "log-in", Desc = "Join a server using JobId." }), -- Tab mới
     WindowTab = Window:Tab({ Title = "Window and File Configuration", Icon = "settings", Desc = "Manage window settings and file configurations." }),
 }
 
@@ -486,7 +547,7 @@ Tabs.Kaitun:Button({
     end
 })
 
--- Tab: Main
+-- Tab: Main (đã xóa nút Join JobId)
 Tabs.Main:Section({ Title = "Scripts" })
 Tabs.Main:Button({
     Title = "W-Azure",
@@ -506,6 +567,7 @@ Tabs.Main:Button({
 Tabs.Main:Button({
     Title = "Banana Hub 1",
     Desc = "Run Banana Hub (Version 1)",
+    Locked = true,
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
     end
@@ -513,6 +575,7 @@ Tabs.Main:Button({
 Tabs.Main:Button({
     Title = "Banana Hub 2",
     Desc = "Run Banana Hub (Version 2)",
+    Locked = true,
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
     end
@@ -522,20 +585,6 @@ Tabs.Main:Button({
     Desc = "Run Banana Hub (Version 3)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
-    end
-})
-Tabs.Main:Button({
-    Title = "Join JobId",
-    Desc = "Join a server using JobId",
-    Callback = function()
-        local jobId = Window:Prompt({
-            Title = "Enter JobId",
-            Text = "Please enter the JobId of the server:",
-            Buttons = { "Join", "Cancel" }
-        })
-        if jobId and jobId ~= "" then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
-        end
     end
 })
 
@@ -620,6 +669,43 @@ local Window = WindUI:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
 })
     ]],
+})
+
+-- Tab: Join Server (Tab mới cho Join JobId)
+Tabs.JoinServer:Section({ Title = "Join Server by JobId" })
+local jobIdInput = ""
+Tabs.JoinServer:Input({
+    Title = "Enter JobId",
+    Placeholder = "Enter the JobId of the server",
+    Callback = function(input)
+        jobIdInput = input
+    end
+})
+Tabs.JoinServer:Button({
+    Title = "Join",
+    Desc = "Join the server with the entered JobId",
+    Callback = function()
+        if jobIdInput and jobIdInput ~= "" then
+            local success, errorMsg = pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, jobIdInput, player)
+            end)
+            if not success then
+                WindUI:Notify({
+                    Title = "Error",
+                    Content = "Failed to join server: " .. tostring(errorMsg),
+                    Icon = "alert-circle",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Error",
+                Content = "Please enter a valid JobId.",
+                Icon = "alert-circle",
+                Duration = 5,
+            })
+        end
+    end
 })
 
 -- Tab: Window and File Configuration
