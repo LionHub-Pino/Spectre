@@ -122,7 +122,7 @@ WindUI:Notify({
     Duration = 5,
 })
 
--- Tạo ScreenGui cho thông tin (infoFrame) và gộp thông tin từ User Info
+-- Tạo ScreenGui cho thông tin (infoFrame) và sắp xếp lại thành hai cột
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -130,11 +130,11 @@ infoGui.ResetOnSpawn = false
 
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    infoFrame.Size = UDim2.new(0, 250, 0, 300) -- Tăng chiều cao để chứa thêm thông tin
-    infoFrame.Position = UDim2.new(0.5, -125, 0, 5)
+    infoFrame.Size = UDim2.new(0, 400, 0, 180) -- Tăng chiều rộng, giảm chiều cao
+    infoFrame.Position = UDim2.new(0.5, -200, 0, 5)
 else
-    infoFrame.Size = UDim2.new(0, 300, 0, 350) -- Tăng chiều cao để chứa thêm thông tin
-    infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
+    infoFrame.Size = UDim2.new(0, 450, 0, 200) -- Tăng chiều rộng, giảm chiều cao
+    infoFrame.Position = UDim2.new(0.5, -225, 0, 10)
 end
 infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 infoFrame.BorderSizePixel = 0
@@ -171,32 +171,33 @@ local infoCorner = Instance.new("UICorner")
 infoCorner.CornerRadius = UDim.new(0, 10)
 infoCorner.Parent = infoFrame
 
--- Các thông tin trong infoFrame
+-- Cột trái: Thông tin chính
 local celebrationLabel = Instance.new("TextLabel")
-celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
-celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
+celebrationLabel.Size = UDim2.new(0.5, -10, 0, 40)
+celebrationLabel.Position = UDim2.new(0, 5, 0, 5)
 celebrationLabel.BackgroundTransparency = 1
 celebrationLabel.Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳"
 celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-celebrationLabel.TextSize = isMobile and 18 or 22
+celebrationLabel.TextSize = isMobile and 16 or 20
 celebrationLabel.Font = Enum.Font.SourceSansBold
 celebrationLabel.TextXAlignment = Enum.TextXAlignment.Center
+celebrationLabel.TextWrapped = true
 celebrationLabel.Parent = infoFrame
 
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, 0, 0, 20)
-fpsLabel.Position = UDim2.new(0, 0, 0, 45)
+fpsLabel.Size = UDim2.new(0.5, -10, 0, 20)
+fpsLabel.Position = UDim2.new(0, 5, 0, 45)
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.Text = "FPS: 0"
 fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsLabel.TextSize = isMobile and 14 or 16
+fpsLabel.TextSize = isMobile and 12 or 14
 fpsLabel.Font = Enum.Font.SourceSansBold
 fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
 fpsLabel.Parent = infoFrame
 
 local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, 0, 0, 20)
-userLabel.Position = UDim2.new(0, 0, 0, 65)
+userLabel.Size = UDim2.new(0.5, -10, 0, 20)
+userLabel.Position = UDim2.new(0, 5, 0, 65)
 userLabel.BackgroundTransparency = 1
 userLabel.Text = "User: " .. player.Name
 userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -206,8 +207,8 @@ userLabel.TextXAlignment = Enum.TextXAlignment.Center
 userLabel.Parent = infoFrame
 
 local vietnamDateLabel = Instance.new("TextLabel")
-vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
-vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
+vietnamDateLabel.Size = UDim2.new(0.5, -10, 0, 20)
+vietnamDateLabel.Position = UDim2.new(0, 5, 0, 85)
 vietnamDateLabel.BackgroundTransparency = 1
 vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 vietnamDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -217,8 +218,8 @@ vietnamDateLabel.TextXAlignment = Enum.TextXAlignment.Center
 vietnamDateLabel.Parent = infoFrame
 
 local executorLabel = Instance.new("TextLabel")
-executorLabel.Size = UDim2.new(1, 0, 0, 20)
-executorLabel.Position = UDim2.new(0, 0, 0, 105)
+executorLabel.Size = UDim2.new(0.5, -10, 0, 20)
+executorLabel.Position = UDim2.new(0, 5, 0, 105)
 executorLabel.BackgroundTransparency = 1
 executorLabel.Text = "Executor: " .. executorName
 executorLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -227,9 +228,22 @@ executorLabel.Font = Enum.Font.SourceSans
 executorLabel.TextXAlignment = Enum.TextXAlignment.Center
 executorLabel.Parent = infoFrame
 
+local thanksLabel = Instance.new("TextLabel")
+thanksLabel.Size = UDim2.new(0.5, -10, 0, 30)
+thanksLabel.Position = UDim2.new(0, 5, 0, 125)
+thanksLabel.BackgroundTransparency = 1
+thanksLabel.Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
+thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
+thanksLabel.TextSize = isMobile and 12 or 14
+thanksLabel.Font = Enum.Font.SourceSansItalic
+thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
+thanksLabel.TextWrapped = true
+thanksLabel.Parent = infoFrame
+
+-- Cột phải: Thông tin server và bạn bè
 local serverRegionLabel = Instance.new("TextLabel")
-serverRegionLabel.Size = UDim2.new(1, 0, 0, 20)
-serverRegionLabel.Position = UDim2.new(0, 0, 0, 125)
+serverRegionLabel.Size = UDim2.new(0.5, -10, 0, 20)
+serverRegionLabel.Position = UDim2.new(0.5, 5, 0, 5)
 serverRegionLabel.BackgroundTransparency = 1
 serverRegionLabel.Text = "Server Region: Unknown"
 serverRegionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -239,8 +253,8 @@ serverRegionLabel.TextXAlignment = Enum.TextXAlignment.Center
 serverRegionLabel.Parent = infoFrame
 
 local inServerForLabel = Instance.new("TextLabel")
-inServerForLabel.Size = UDim2.new(1, 0, 0, 20)
-inServerForLabel.Position = UDim2.new(0, 0, 0, 145)
+inServerForLabel.Size = UDim2.new(0.5, -10, 0, 20)
+inServerForLabel.Position = UDim2.new(0.5, 5, 0, 25)
 inServerForLabel.BackgroundTransparency = 1
 inServerForLabel.Text = "In Server For: 0s"
 inServerForLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -250,8 +264,8 @@ inServerForLabel.TextXAlignment = Enum.TextXAlignment.Center
 inServerForLabel.Parent = infoFrame
 
 local latencyLabel = Instance.new("TextLabel")
-latencyLabel.Size = UDim2.new(1, 0, 0, 20)
-latencyLabel.Position = UDim2.new(0, 0, 0, 165)
+latencyLabel.Size = UDim2.new(0.5, -10, 0, 20)
+latencyLabel.Position = UDim2.new(0.5, 5, 0, 45)
 latencyLabel.BackgroundTransparency = 1
 latencyLabel.Text = "Latency: 0ms"
 latencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -261,8 +275,8 @@ latencyLabel.TextXAlignment = Enum.TextXAlignment.Center
 latencyLabel.Parent = infoFrame
 
 local totalFriendsLabel = Instance.new("TextLabel")
-totalFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
-totalFriendsLabel.Position = UDim2.new(0, 0, 0, 185)
+totalFriendsLabel.Size = UDim2.new(0.5, -10, 0, 20)
+totalFriendsLabel.Position = UDim2.new(0.5, 5, 0, 65)
 totalFriendsLabel.BackgroundTransparency = 1
 totalFriendsLabel.Text = "Total Friends: 0"
 totalFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -272,8 +286,8 @@ totalFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
 totalFriendsLabel.Parent = infoFrame
 
 local onlineFriendsLabel = Instance.new("TextLabel")
-onlineFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
-onlineFriendsLabel.Position = UDim2.new(0, 0, 0, 205)
+onlineFriendsLabel.Size = UDim2.new(0.5, -10, 0, 20)
+onlineFriendsLabel.Position = UDim2.new(0.5, 5, 0, 85)
 onlineFriendsLabel.BackgroundTransparency = 1
 onlineFriendsLabel.Text = "Online Friends: 0"
 onlineFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -283,8 +297,8 @@ onlineFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
 onlineFriendsLabel.Parent = infoFrame
 
 local offlineFriendsLabel = Instance.new("TextLabel")
-offlineFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
-offlineFriendsLabel.Position = UDim2.new(0, 0, 0, 225)
+offlineFriendsLabel.Size = UDim2.new(0.5, -10, 0, 20)
+offlineFriendsLabel.Position = UDim2.new(0.5, 5, 0, 105)
 offlineFriendsLabel.BackgroundTransparency = 1
 offlineFriendsLabel.Text = "Offline Friends: 0"
 offlineFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -294,8 +308,8 @@ offlineFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
 offlineFriendsLabel.Parent = infoFrame
 
 local inServerFriendsLabel = Instance.new("TextLabel")
-inServerFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
-inServerFriendsLabel.Position = UDim2.new(0, 0, 0, 245)
+inServerFriendsLabel.Size = UDim2.new(0.5, -10, 0, 20)
+inServerFriendsLabel.Position = UDim2.new(0.5, 5, 0, 125)
 inServerFriendsLabel.BackgroundTransparency = 1
 inServerFriendsLabel.Text = "Friends in Server: 0"
 inServerFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -305,8 +319,8 @@ inServerFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
 inServerFriendsLabel.Parent = infoFrame
 
 local playersInServerLabel = Instance.new("TextLabel")
-playersInServerLabel.Size = UDim2.new(1, 0, 0, 20)
-playersInServerLabel.Position = UDim2.new(0, 0, 0, 265)
+playersInServerLabel.Size = UDim2.new(0.5, -10, 0, 20)
+playersInServerLabel.Position = UDim2.new(0.5, 5, 0, 145)
 playersInServerLabel.BackgroundTransparency = 1
 playersInServerLabel.Text = "Players in Server: 0"
 playersInServerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -314,17 +328,6 @@ playersInServerLabel.TextSize = isMobile and 12 or 14
 playersInServerLabel.Font = Enum.Font.SourceSans
 playersInServerLabel.TextXAlignment = Enum.TextXAlignment.Center
 playersInServerLabel.Parent = infoFrame
-
-local thanksLabel = Instance.new("TextLabel")
-thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 285)
-thanksLabel.BackgroundTransparency = 1
-thanksLabel.Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
-thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
-thanksLabel.TextSize = isMobile and 12 or 14
-thanksLabel.Font = Enum.Font.SourceSansItalic
-thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
-thanksLabel.Parent = infoFrame
 
 local lastTime = tick()
 local frameCount = 0
@@ -407,7 +410,7 @@ local Tabs = {
     Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
-    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "code", Desc = "Displays and manages code snippets." }), -- Đổi Desc để phù hợp
+    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "code", Desc = "Displays and manages code snippets." }),
     WindowTab = Window:Tab({ Title = "Window and File Configuration", Icon = "settings", Desc = "Manage window settings and file configurations." }),
 }
 
@@ -591,7 +594,7 @@ Tabs.AllExecutorScripts:Button({
     end
 })
 
--- Tab: WindUI Lib Info (thay bằng nội dung từ tab "Code" của WindUI gốc)
+-- Tab: WindUI Lib Info
 Tabs.WindUILibInfo:Section({ Title = "WindUI Code Examples" })
 Tabs.WindUILibInfo:Code({
     Title = "Example Code",
