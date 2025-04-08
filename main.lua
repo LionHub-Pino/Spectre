@@ -122,7 +122,7 @@ WindUI:Notify({
     Duration = 5,
 })
 
--- Tạo ScreenGui cho thông tin (infoFrame)
+-- Tạo ScreenGui cho thông tin (infoFrame) và gộp thông tin từ User Info
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -130,10 +130,10 @@ infoGui.ResetOnSpawn = false
 
 local infoFrame = Instance.new("Frame")
 if isMobile then
-    infoFrame.Size = UDim2.new(0, 250, 0, 160)
+    infoFrame.Size = UDim2.new(0, 250, 0, 300) -- Tăng chiều cao để chứa thêm thông tin
     infoFrame.Position = UDim2.new(0.5, -125, 0, 5)
 else
-    infoFrame.Size = UDim2.new(0, 300, 0, 180)
+    infoFrame.Size = UDim2.new(0, 300, 0, 350) -- Tăng chiều cao để chứa thêm thông tin
     infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
 end
 infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -171,6 +171,7 @@ local infoCorner = Instance.new("UICorner")
 infoCorner.CornerRadius = UDim.new(0, 10)
 infoCorner.Parent = infoFrame
 
+-- Các thông tin cũ trong infoFrame
 local celebrationLabel = Instance.new("TextLabel")
 celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
 celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
@@ -226,9 +227,98 @@ executorLabel.Font = Enum.Font.SourceSans
 executorLabel.TextXAlignment = Enum.TextXAlignment.Center
 executorLabel.Parent = infoFrame
 
+-- Thêm các thông tin từ User Info vào infoFrame
+local serverRegionLabel = Instance.new("TextLabel")
+serverRegionLabel.Size = UDim2.new(1, 0, 0, 20)
+serverRegionLabel.Position = UDim2.new(0, 0, 0, 125)
+serverRegionLabel.BackgroundTransparency = 1
+serverRegionLabel.Text = "Server Region: Unknown"
+serverRegionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+serverRegionLabel.TextSize = isMobile and 12 or 14
+serverRegionLabel.Font = Enum.Font.SourceSans
+serverRegionLabel.TextXAlignment = Enum.TextXAlignment.Center
+serverRegionLabel.Parent = infoFrame
+
+local inServerForLabel = Instance.new("TextLabel")
+inServerForLabel.Size = UDim2.new(1, 0, 0, 20)
+inServerForLabel.Position = UDim2.new(0, 0, 0, 145)
+inServerForLabel.BackgroundTransparency = 1
+inServerForLabel.Text = "In Server For: 0s"
+inServerForLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+inServerForLabel.TextSize = isMobile and 12 or 14
+inServerForLabel.Font = Enum.Font.SourceSans
+inServerForLabel.TextXAlignment = Enum.TextXAlignment.Center
+inServerForLabel.Parent = infoFrame
+
+local latencyLabel = Instance.new("TextLabel")
+latencyLabel.Size = UDim2.new(1, 0, 0, 20)
+latencyLabel.Position = UDim2.new(0, 0, 0, 165)
+latencyLabel.BackgroundTransparency = 1
+latencyLabel.Text = "Latency: 0ms"
+latencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+latencyLabel.TextSize = isMobile and 12 or 14
+latencyLabel.Font = Enum.Font.SourceSans
+latencyLabel.TextXAlignment = Enum.TextXAlignment.Center
+latencyLabel.Parent = infoFrame
+
+local totalFriendsLabel = Instance.new("TextLabel")
+totalFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
+totalFriendsLabel.Position = UDim2.new(0, 0, 0, 185)
+totalFriendsLabel.BackgroundTransparency = 1
+totalFriendsLabel.Text = "Total Friends: 0"
+totalFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+totalFriendsLabel.TextSize = isMobile and 12 or 14
+totalFriendsLabel.Font = Enum.Font.SourceSans
+totalFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
+totalFriendsLabel.Parent = infoFrame
+
+local onlineFriendsLabel = Instance.new("TextLabel")
+onlineFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
+onlineFriendsLabel.Position = UDim2.new(0, 0, 0, 205)
+onlineFriendsLabel.BackgroundTransparency = 1
+onlineFriendsLabel.Text = "Online Friends: 0"
+onlineFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+onlineFriendsLabel.TextSize = isMobile and 12 or 14
+onlineFriendsLabel.Font = Enum.Font.SourceSans
+onlineFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
+onlineFriendsLabel.Parent = infoFrame
+
+local offlineFriendsLabel = Instance.new("TextLabel")
+offlineFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
+offlineFriendsLabel.Position = UDim2.new(0, 0, 0, 225)
+offlineFriendsLabel.BackgroundTransparency = 1
+offlineFriendsLabel.Text = "Offline Friends: 0"
+offlineFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+offlineFriendsLabel.TextSize = isMobile and 12 or 14
+offlineFriendsLabel.Font = Enum.Font.SourceSans
+offlineFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
+offlineFriendsLabel.Parent = infoFrame
+
+local inServerFriendsLabel = Instance.new("TextLabel")
+inServerFriendsLabel.Size = UDim2.new(1, 0, 0, 20)
+inServerFriendsLabel.Position = UDim2.new(0, 0, 0, 245)
+inServerFriendsLabel.BackgroundTransparency = 1
+inServerFriendsLabel.Text = "Friends in Server: 0"
+inServerFriendsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+inServerFriendsLabel.TextSize = isMobile and 12 or 14
+inServerFriendsLabel.Font = Enum.Font.SourceSans
+inServerFriendsLabel.TextXAlignment = Enum.TextXAlignment.Center
+inServerFriendsLabel.Parent = infoFrame
+
+local playersInServerLabel = Instance.new("TextLabel")
+playersInServerLabel.Size = UDim2.new(1, 0, 0, 20)
+playersInServerLabel.Position = UDim2.new(0, 0, 0, 265)
+playersInServerLabel.BackgroundTransparency = 1
+playersInServerLabel.Text = "Players in Server: 0"
+playersInServerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+playersInServerLabel.TextSize = isMobile and 12 or 14
+playersInServerLabel.Font = Enum.Font.SourceSans
+playersInServerLabel.TextXAlignment = Enum.TextXAlignment.Center
+playersInServerLabel.Parent = infoFrame
+
 local thanksLabel = Instance.new("TextLabel")
 thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 125)
+thanksLabel.Position = UDim2.new(0, 0, 0, 285)
 thanksLabel.BackgroundTransparency = 1
 thanksLabel.Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
 thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
@@ -240,6 +330,7 @@ thanksLabel.Parent = infoFrame
 local lastTime = tick()
 local frameCount = 0
 
+-- Cập nhật thông tin trong infoFrame
 RunService.RenderStepped:Connect(function()
     frameCount = frameCount + 1
     local currentTime = tick()
@@ -252,6 +343,54 @@ RunService.RenderStepped:Connect(function()
     vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 end)
 
+spawn(function()
+    while wait(1) do
+        local region = "Unknown"
+        pcall(function()
+            region = VoiceChatService:GetVoiceRegion() or "Unknown"
+        end)
+        serverRegionLabel.Text = "Server Region: " .. region
+
+        local inServerTime = tick() - startTime
+        inServerForLabel.Text = "In Server For: " .. formatTime(inServerTime)
+
+        local ping = player:GetNetworkPing() * 1000
+        latencyLabel.Text = "Latency: " .. math.floor(ping) .. "ms"
+
+        local playerCount = #Players:GetPlayers()
+        playersInServerLabel.Text = "Players in Server: " .. playerCount
+    end
+end)
+
+spawn(function()
+    while wait(30) do
+        local totalFriends, onlineFriends, offlineFriends, inServerFriends = 0, 0, 0, 0
+        local success, friends = pcall(function()
+            return Players:GetFriendsAsync(player.UserId)
+        end)
+        if success then
+            for friend in friends do
+                totalFriends = totalFriends + 1
+                if friend.IsOnline then
+                    onlineFriends = onlineFriends + 1
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p.UserId == friend.UserId then
+                            inServerFriends = inServerFriends + 1
+                            break
+                        end
+                    end
+                else
+                    offlineFriends = offlineFriends + 1
+                end
+            end
+        end
+        totalFriendsLabel.Text = "Total Friends: " .. totalFriends
+        onlineFriendsLabel.Text = "Online Friends: " .. onlineFriends
+        offlineFriendsLabel.Text = "Offline Friends: " .. offlineFriends
+        inServerFriendsLabel.Text = "Friends in Server: " .. inServerFriends
+    end
+end)
+
 -- Anti-AFK
 spawn(function()
     while true do
@@ -262,15 +401,15 @@ spawn(function()
     end
 end)
 
--- Tạo các tab với WindUI
+-- Tạo các tab với WindUI (không có User Info nữa)
 local Tabs = {
     MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
     Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
     Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
-    UserInfo = Window:Tab({ Title = "User Info", Icon = "user", Desc = "User and server information." }),
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
     WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "info", Desc = "Information about WindUI library." }),
+    WindowTab = Window:Tab({ Title = "Window and File Configuration", Icon = "settings", Desc = "Manage window settings and file configurations." }),
 }
 
 -- Đảm bảo tab đầu tiên được chọn
@@ -350,7 +489,7 @@ Tabs.Main:Section({ Title = "Scripts" })
 Tabs.Main:Button({
     Title = "W-Azure",
     Desc = "Run W-Azure script (Locked)",
-    Locked = true, -- Khóa nút W-Azure
+    Locked = true,
     Callback = function()
         -- Nút bị khóa nên không làm gì
     end
@@ -397,69 +536,6 @@ Tabs.Main:Button({
         end
     end
 })
-
--- Tab: User Info
-Tabs.UserInfo:Section({ Title = "User Information" })
-local serverRegionLabel = Tabs.UserInfo:Label({ Text = "Server Region: Unknown" })
-local inServerForLabel = Tabs.UserInfo:Label({ Text = "In Server For: 0s" })
-local fpsInfoLabel = Tabs.UserInfo:Label({ Text = "FPS: 0" })
-local latencyLabel = Tabs.UserInfo:Label({ Text = "Latency: 0ms" })
-local totalFriendsLabel = Tabs.UserInfo:Label({ Text = "Total Friends: 0" })
-local onlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Online Friends: 0" })
-local offlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Offline Friends: 0" })
-local inServerFriendsLabel = Tabs.UserInfo:Label({ Text = "Friends in Server: 0" })
-local playersInServerLabel = Tabs.UserInfo:Label({ Text = "Players in Server: 0" })
-
-spawn(function()
-    while wait(1) do
-        local region = "Unknown"
-        pcall(function()
-            region = VoiceChatService:GetVoiceRegion() or "Unknown"
-        end)
-        serverRegionLabel:SetText("Server Region: " .. region)
-
-        local inServerTime = tick() - startTime
-        inServerForLabel:SetText("In Server For: " .. formatTime(inServerTime))
-
-        local fps = math.floor(frameCount / (tick() - lastTime))
-        fpsInfoLabel:SetText("FPS: " .. fps)
-
-        local ping = player:GetNetworkPing() * 1000
-        latencyLabel:SetText("Latency: " .. math.floor(ping) .. "ms")
-
-        local playerCount = #Players:GetPlayers()
-        playersInServerLabel:SetText("Players in Server: " .. playerCount)
-    end
-end)
-
-spawn(function()
-    while wait(30) do
-        local totalFriends, onlineFriends, offlineFriends, inServerFriends = 0, 0, 0, 0
-        local success, friends = pcall(function()
-            return Players:GetFriendsAsync(player.UserId)
-        end)
-        if success then
-            for friend in friends do
-                totalFriends = totalFriends + 1
-                if friend.IsOnline then
-                    onlineFriends = onlineFriends + 1
-                    for _, p in pairs(Players:GetPlayers()) do
-                        if p.UserId == friend.UserId then
-                            inServerFriends = inServerFriends + 1
-                            break
-                        end
-                    end
-                else
-                    offlineFriends = offlineFriends + 1
-                end
-            end
-        end
-        totalFriendsLabel:SetText("Total Friends: " .. totalFriends)
-        onlineFriendsLabel:SetText("Online Friends: " .. onlineFriends)
-        offlineFriendsLabel:SetText("Offline Friends: " .. offlineFriends)
-        inServerFriendsLabel:SetText("Friends in Server: " .. inServerFriends)
-    end
-end)
 
 -- Tab: Updates
 Tabs.Updates:Section({ Title = "Update Logs" })
@@ -530,5 +606,126 @@ Tabs.WindUILibInfo:Button({
             setclipboard("https://tree-hub.vercel.app/api/UI/WindUI")
             Window:Notification({ Title = "Lion Hub", Text = "Copied WindUI source link!", Duration = 3 })
         end
+    end
+})
+
+-- Tab: Window and File Configuration (từ mã mẫu)
+Tabs.WindowTab:Section({ Title = "Window" })
+
+local themeValues = {}
+for name, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themeValues, name)
+end
+
+local themeDropdown = Tabs.WindowTab:Dropdown({
+    Title = "Select Theme",
+    Multi = false,
+    AllowNone = false,
+    Value = nil,
+    Values = themeValues,
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+    end
+})
+themeDropdown:Select(WindUI:GetCurrentTheme())
+
+local ToggleTransparency = Tabs.WindowTab:Toggle({
+    Title = "Toggle Window Transparency",
+    Callback = function(e)
+        Window:ToggleTransparency(e)
+    end,
+    Value = WindUI:GetTransparency()
+})
+
+Tabs.WindowTab:Section({ Title = "Save" })
+
+local fileNameInput = ""
+Tabs.WindowTab:Input({
+    Title = "Write File Name",
+    PlaceholderText = "Enter file name",
+    Callback = function(text)
+        fileNameInput = text
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Save File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local folderPath = "WindUI"
+            makefolder(folderPath)
+            local filePath = folderPath .. "/" .. fileNameInput .. ".json"
+            local jsonData = HttpService:JSONEncode({ Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
+            writefile(filePath, jsonData)
+        end
+    end
+})
+
+Tabs.WindowTab:Section({ Title = "Load" })
+
+local filesDropdown
+local function ListFiles()
+    local files = {}
+    for _, file in ipairs(listfiles("WindUI")) do
+        local fileName = file:match("([^/]+)%.json$")
+        if fileName then
+            table.insert(files, fileName)
+        end
+    end
+    return files
+end
+
+filesDropdown = Tabs.WindowTab:Dropdown({
+    Title = "Select File",
+    Multi = false,
+    AllowNone = true,
+    Values = ListFiles(),
+    Callback = function(selectedFile)
+        fileNameInput = selectedFile
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Load File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local filePath = "WindUI/" .. fileNameInput .. ".json"
+            if isfile(filePath) then
+                local jsonData = readfile(filePath)
+                local data = HttpService:JSONDecode(jsonData)
+                if data then
+                    WindUI:Notify({
+                        Title = "File Loaded",
+                        Content = "Loaded data: " .. HttpService:JSONEncode(data),
+                        Duration = 5,
+                    })
+                    if data.Transparent then 
+                        Window:ToggleTransparency(data.Transparent)
+                        ToggleTransparency:SetValue(data.Transparent)
+                    end
+                    if data.Theme then WindUI:SetTheme(data.Theme) end
+                end
+            end
+        end
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Overwrite File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local folderPath = "WindUI"
+            makefolder(folderPath)
+            local filePath = folderPath .. "/" .. fileNameInput .. ".json"
+            local jsonData = HttpService:JSONEncode({ Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
+            writefile(filePath, jsonData)
+        end
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Refresh List",
+    Callback = function()
+        filesDropdown:Refresh(ListFiles())
     end
 })
