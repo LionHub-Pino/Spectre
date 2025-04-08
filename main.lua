@@ -171,7 +171,7 @@ local infoCorner = Instance.new("UICorner")
 infoCorner.CornerRadius = UDim.new(0, 10)
 infoCorner.Parent = infoFrame
 
--- Các thông tin cũ trong infoFrame
+-- Các thông tin trong infoFrame
 local celebrationLabel = Instance.new("TextLabel")
 celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
 celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
@@ -227,7 +227,6 @@ executorLabel.Font = Enum.Font.SourceSans
 executorLabel.TextXAlignment = Enum.TextXAlignment.Center
 executorLabel.Parent = infoFrame
 
--- Thêm các thông tin từ User Info vào infoFrame
 local serverRegionLabel = Instance.new("TextLabel")
 serverRegionLabel.Size = UDim2.new(1, 0, 0, 20)
 serverRegionLabel.Position = UDim2.new(0, 0, 0, 125)
@@ -401,14 +400,14 @@ spawn(function()
     end
 end)
 
--- Tạo các tab với WindUI (không có User Info nữa)
+-- Tạo các tab với WindUI
 local Tabs = {
     MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
     Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
     Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
-    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "info", Desc = "Information about WindUI library." }),
+    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "code", Desc = "Displays and manages code snippets." }), -- Đổi Desc để phù hợp
     WindowTab = Window:Tab({ Title = "Window and File Configuration", Icon = "settings", Desc = "Manage window settings and file configurations." }),
 }
 
@@ -592,24 +591,35 @@ Tabs.AllExecutorScripts:Button({
     end
 })
 
--- Tab: WindUI Lib Info
-Tabs.WindUILibInfo:Section({ Title = "WindUI Library Info" })
-Tabs.WindUILibInfo:Label({ Text = "WindUI Library" })
-Tabs.WindUILibInfo:Label({ Text = "Version: Latest" })
-Tabs.WindUILibInfo:Label({ Text = "Author: Unknown" })
-Tabs.WindUILibInfo:Label({ Text = "Source: https://tree-hub.vercel.app/api/UI/WindUI" })
-Tabs.WindUILibInfo:Label({ Text = "Description: A powerful UI library for Roblox scripting." })
-Tabs.WindUILibInfo:Button({
-    Title = "Copy Source Link",
-    Callback = function()
-        if setclipboard then
-            setclipboard("https://tree-hub.vercel.app/api/UI/WindUI")
-            Window:Notification({ Title = "Lion Hub", Text = "Copied WindUI source link!", Duration = 3 })
-        end
-    end
+-- Tab: WindUI Lib Info (thay bằng nội dung từ tab "Code" của WindUI gốc)
+Tabs.WindUILibInfo:Section({ Title = "WindUI Code Examples" })
+Tabs.WindUILibInfo:Code({
+    Title = "Example Code",
+    Code = [[
+local message = "Hello"
+print(message)
+
+if message == "Hello" then
+    print("Greetings!")
+end
+    ]],
+})
+Tabs.WindUILibInfo:Code({
+    Title = "WindUI Example",
+    Code = [[
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua"))()
+
+local Window = WindUI:CreateWindow({
+    Title = "WindUI Example",
+    Icon = "image",
+    Author = ".ftgs",
+    Folder = "CloudHub",
+    Size = UDim2.fromOffset(580, 460),
+})
+    ]],
 })
 
--- Tab: Window and File Configuration (từ mã mẫu)
+-- Tab: Window and File Configuration
 Tabs.WindowTab:Section({ Title = "Window" })
 
 local themeValues = {}
