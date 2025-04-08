@@ -1,9 +1,10 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local VoiceChatService = game:GetService("VoiceChatService")
 
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
@@ -26,7 +27,7 @@ local startTime = tick()
 local Window = WindUI:CreateWindow({
     Title = "Lion Hub 🇻🇳",
     Icon = "door-open",
-    Author = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳",
+    Author = "Pino_azure",
     Folder = "LionHubData",
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
@@ -45,7 +46,7 @@ local Window = WindUI:CreateWindow({
     },
 })
 
--- Hàm định dạng thời gian thành "phút giây"
+-- Hàm định dạng thời gian
 local function formatTime(seconds)
     local minutes = math.floor(seconds / 60)
     local remainingSeconds = math.floor(seconds % 60)
@@ -82,7 +83,7 @@ local function sendWebhook()
                 {["name"] = "Executor", ["value"] = executorName, ["inline"] = true},
                 {["name"] = "Load Time", ["value"] = formattedTime, ["inline"] = true},
             },
-            ["color"] = 65280, -- Màu xanh lá
+            ["color"] = 65280,
             ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
     }
@@ -101,183 +102,179 @@ local function sendWebhook()
     end
 end
 
--- Gửi webhook ngay sau khi UI được tải
 spawn(function()
     sendWebhook()
 end)
 
--- Tạo ScreenGui cho thông tin (giữ nguyên từ mã cũ)
-local infoGui = Instance.new("ScreenGui")
-infoGui.Name = "InfoGui"
-infoGui.Parent = playerGui
-infoGui.ResetOnSpawn = false
-
--- Tạo Frame cho thông tin
-local infoFrame = Instance.new("Frame")
-if isMobile then
-    infoFrame.Size = UDim2.new(0, 250, 0, 160)
-    infoFrame.Position = UDim2.new(0.5, -125, 0, 5)
-else
-    infoFrame.Size = UDim2.new(0, 300, 0, 180)
-    infoFrame.Position = UDim2.new(0.5, -150, 0, 10)
-end
-infoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-infoFrame.BorderSizePixel = 0
-infoFrame.Parent = infoGui
-
--- Tính năng kéo thả cho infoFrame
-local dragging = false
-local dragInput
-local dragStart
-local startPos
-
-infoFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = infoFrame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-infoFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        infoFrame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-local infoCorner = Instance.new("UICorner")
-infoCorner.CornerRadius = UDim.new(0, 10)
-infoCorner.Parent = infoFrame
-
--- Tạo TextLabel cho dòng "Mừng 50 Năm Giải Phóng Đất Nước"
-local celebrationLabel = Instance.new("TextLabel")
-celebrationLabel.Size = UDim2.new(1, 0, 0, 40)
-celebrationLabel.Position = UDim2.new(0, 0, 0, 5)
-celebrationLabel.BackgroundTransparency = 1
-celebrationLabel.Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳"
-celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-celebrationLabel.TextSize = isMobile and 18 or 22
-celebrationLabel.Font = Enum.Font.SourceSansBold
-celebrationLabel.TextXAlignment = Enum.TextXAlignment.Center
-celebrationLabel.Parent = infoFrame
-
--- Tạo TextLabel cho FPS
-local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(1, 0, 0, 20)
-fpsLabel.Position = UDim2.new(0, 0, 0, 45)
-fpsLabel.BackgroundTransparency = 1
-fpsLabel.Text = "FPS: 0"
-fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-fpsLabel.TextSize = isMobile and 14 or 16
-fpsLabel.Font = Enum.Font.SourceSansBold
-fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
-fpsLabel.Parent = infoFrame
-
--- Tạo TextLabel cho User Name
-local userLabel = Instance.new("TextLabel")
-userLabel.Size = UDim2.new(1, 0, 0, 20)
-userLabel.Position = UDim2.new(0, 0, 0, 65)
-userLabel.BackgroundTransparency = 1
-userLabel.Text = "User: " .. player.Name
-userLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-userLabel.TextSize = isMobile and 12 or 14
-userLabel.Font = Enum.Font.SourceSans
-userLabel.TextXAlignment = Enum.TextXAlignment.Center
-userLabel.Parent = infoFrame
-
--- Tạo TextLabel cho ngày, tháng, năm Việt Nam
-local vietnamDateLabel = Instance.new("TextLabel")
-vietnamDateLabel.Size = UDim2.new(1, 0, 0, 20)
-vietnamDateLabel.Position = UDim2.new(0, 0, 0, 85)
-vietnamDateLabel.BackgroundTransparency = 1
-vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
-vietnamDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-vietnamDateLabel.TextSize = isMobile and 12 or 14
-vietnamDateLabel.Font = Enum.Font.SourceSans
-vietnamDateLabel.TextXAlignment = Enum.TextXAlignment.Center
-vietnamDateLabel.Parent = infoFrame
-
--- Tạo TextLabel cho Executor
-local executorLabel = Instance.new("TextLabel")
-executorLabel.Size = UDim2.new(1, 0, 0, 20)
-executorLabel.Position = UDim2.new(0, 0, 0, 105)
-executorLabel.BackgroundTransparency = 1
+-- Thông báo kiểu Codex khi script chạy
 local executorName = "Unknown"
-if syn then
-    executorName = "Synapse X"
-elseif fluxus then
-    executorName = "Fluxus"
-elseif krnl then
-    executorName = "Krnl"
-elseif delta then
-    executorName = "Delta"
-elseif getexecutorname then
-    executorName = getexecutorname()
-end
-executorLabel.Text = "Executor: " .. executorName
-executorLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-executorLabel.TextSize = isMobile and 12 or 14
-executorLabel.Font = Enum.Font.SourceSans
-executorLabel.TextXAlignment = Enum.TextXAlignment.Center
-executorLabel.Parent = infoFrame
+if syn then executorName = "Synapse X"
+elseif fluxus then executorName = "Fluxus"
+elseif krnl then executorName = "Krnl"
+elseif delta then executorName = "Delta"
+elseif getexecutorname then executorName = getexecutorname() end
 
--- Tạo TextLabel cho dòng cảm ơn với hiệu ứng đánh máy
-local thanksLabel = Instance.new("TextLabel")
-thanksLabel.Size = UDim2.new(1, 0, 0, 30)
-thanksLabel.Position = UDim2.new(0, 0, 0, 125)
-thanksLabel.BackgroundTransparency = 1
-thanksLabel.Text = ""
-thanksLabel.TextColor3 = Color3.fromRGB(0, 120, 215)
-thanksLabel.TextSize = isMobile and 12 or 14
-thanksLabel.Font = Enum.Font.SourceSansItalic
-thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
-thanksLabel.Parent = infoFrame
+WindUI:Notify({
+    Title = "Welcome To Lion Hub",
+    Content = "MỪNG 50 NĂM GIẢI PHÓNG ĐẤT NƯỚC\nExecutor: " .. executorName,
+    Icon = "bell",
+    Duration = 5,
+})
 
--- Hiệu ứng đánh máy cho dòng cảm ơn
-local thanksText = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
-local isTyping = true
-local currentIndex = 0
-
+-- Anti-AFK
 spawn(function()
     while true do
-        if isTyping then
-            currentIndex = currentIndex + 1
-            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
-            if currentIndex >= #thanksText then
-                isTyping = false
-                wait(1)
-            end
-        else
-            currentIndex = currentIndex - 1
-            thanksLabel.Text = string.sub(thanksText, 1, currentIndex)
-            if currentIndex <= 0 then
-                isTyping = true
-                wait(0.5)
-            end
-        end
-        wait(0.1)
+        local VirtualUser = game:GetService("VirtualUser")
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+        wait(60) -- Giả lập hành động mỗi 60 giây để tránh AFK
     end
 end)
 
--- Cập nhật FPS và ngày, tháng, năm Việt Nam
+-- Tạo các tab
+local Tabs = {
+    MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
+    Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
+    Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
+    UserInfo = Window:Tab({ Title = "User Info", Icon = "user", Desc = "User and server information." }),
+    Info = Window:Tab({ Title = "Info", Icon = "info", Desc = "Basic user and executor info." }),
+    Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
+    AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
+    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "info", Desc = "Information about WindUI library." }),
+}
+
+Window:SelectTab(1)
+
+-- Tab: Main Hub
+Tabs.MainHub:Section({ Title = "Main Hub Script" })
+Tabs.MainHub:Button({
+    Title = "MainHub",
+    Desc = "Run MainHub script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
+    end
+})
+
+-- Tab: Kaitun
+Tabs.Kaitun:Section({ Title = "Kaitun Scripts" })
+Tabs.Kaitun:Button({
+    Title = "Kaitun",
+    Desc = "Run Kaitun script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunDF",
+    Desc = "Run KaitunDF script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "Marukaitun",
+    Desc = "Run Marukaitun-Mobile script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunFisch",
+    Desc = "Run KaitunFisch script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAd",
+    Desc = "Run KaitunAd script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunKI",
+    Desc = "Run KaitunKI script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAR",
+    Desc = "Run KaitunAR script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAV",
+    Desc = "Run KaitunAV script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
+    end
+})
+
+-- Tab: Main
+Tabs.Main:Section({ Title = "Scripts" })
+Tabs.Main:Button({
+    Title = "W-Azure",
+    Desc = "Run W-Azure script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Maru Hub",
+    Desc = "Run Maru Hub-Mobile script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 1",
+    Desc = "Run Banana Hub (Version 1)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 2",
+    Desc = "Run Banana Hub (Version 2)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 3",
+    Desc = "Run Banana Hub (Version 3)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Join JobId",
+    Desc = "Join a server using JobId",
+    Callback = function()
+        local jobId = Window:Prompt({
+            Title = "Enter JobId",
+            Text = "Please enter the JobId of the server:",
+            Buttons = { "Join", "Cancel" }
+        })
+        if jobId and jobId ~= "" then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
+        end
+    end
+})
+
+-- Tab: Info (chuyển từ infoGui, không hiệu ứng đánh máy)
+Tabs.Info:Section({ Title = "Basic Information" })
+local infoCelebrationLabel = Tabs.Info:Label({ Text = "🇻🇳 Mừng 50 Năm Giải Phóng Đất Nước 🇻🇳" })
+local infoFpsLabel = Tabs.Info:Label({ Text = "FPS: 0" })
+local infoUserLabel = Tabs.Info:Label({ Text = "User: " .. player.Name })
+local infoDateLabel = Tabs.Info:Label({ Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600) })
+local infoExecutorLabel = Tabs.Info:Label({ Text = "Executor: " .. executorName })
+local infoThanksLabel = Tabs.Info:Label({ Text = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub" })
+
 local lastTime = tick()
 local frameCount = 0
 
@@ -286,258 +283,144 @@ RunService.RenderStepped:Connect(function()
     local currentTime = tick()
     if currentTime - lastTime >= 1 then
         local fps = math.floor(frameCount / (currentTime - lastTime))
-        fpsLabel.Text = "FPS: " .. fps
+        infoFpsLabel:SetText("FPS: " .. fps)
         frameCount = 0
         lastTime = currentTime
     end
-    vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
+    infoDateLabel:SetText("VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600))
 end)
 
--- Tùy chỉnh nút mở UI
-Window:EditOpenButton({
-    Title = "🇻🇳 Mở Lion Hub 🇻🇳",
-    Icon = "monitor",
-    CornerRadius = UDim.new(0, 10),
-    StrokeThickness = 2,
-    Color = ColorSequence.new(
-        Color3.fromHex("FF0F7B"), 
-        Color3.fromHex("F89B29")
-    ),
-    Draggable = true,
-})
+-- Tab: User Info
+Tabs.UserInfo:Section({ Title = "User Information" })
+local serverRegionLabel = Tabs.UserInfo:Label({ Text = "Server Region: Unknown" })
+local inServerForLabel = Tabs.UserInfo:Label({ Text = "In Server For: 0s" })
+local fpsInfoLabel = Tabs.UserInfo:Label({ Text = "FPS: 0" })
+local latencyLabel = Tabs.UserInfo:Label({ Text = "Latency: 0ms" })
+local totalFriendsLabel = Tabs.UserInfo:Label({ Text = "Total Friends: 0" })
+local onlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Online Friends: 0" })
+local offlineFriendsLabel = Tabs.UserInfo:Label({ Text = "Offline Friends: 0" })
+local inServerFriendsLabel = Tabs.UserInfo:Label({ Text = "Friends in Server: 0" })
+local playersInServerLabel = Tabs.UserInfo:Label({ Text = "Players in Server: 0" })
 
--- Tạo các tab
-local Tabs = {
-    MainHubTab = Window:Tab({ Title = "MainHub", Icon = "star", Desc = "Script MainHub chính." }),
-    KaitunTab = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Các script Kaitun." }),
-    MainTab = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Các tính năng chính và script." }),
-    NotificationTab = Window:Tab({ Title = "Nhật Ký Cập Nhật", Icon = "bell", Desc = "Thông tin cập nhật và chi tiết." }),
-}
+spawn(function()
+    while wait(1) do
+        local region = "Unknown"
+        pcall(function()
+            region = VoiceChatService:GetVoiceRegion() or "Unknown"
+        end)
+        serverRegionLabel:SetText("Server Region: " .. region)
 
--- Chọn tab mặc định
-Window:SelectTab(1)
+        local inServerTime = tick() - startTime
+        inServerForLabel:SetText("In Server For: " .. formatTime(inServerTime))
 
--- Tab: MainHub
-Tabs.MainHubTab:Section({ Title = "MainHub Script" })
+        local fps = math.floor(frameCount / (tick() - lastTime))
+        fpsInfoLabel:SetText("FPS: " .. fps)
 
-Tabs.MainHubTab:Button({
-    Title = "MainHub",
-    Desc = "Chạy script MainHub",
+        local ping = player:GetNetworkPing() * 1000
+        latencyLabel:SetText("Latency: " .. math.floor(ping) .. "ms")
+
+        local playerCount = #Players:GetPlayers()
+        playersInServerLabel:SetText("Players in Server: " .. playerCount)
+    end
+end)
+
+spawn(function()
+    while wait(30) do
+        local totalFriends, onlineFriends, offlineFriends, inServerFriends = 0, 0, 0, 0
+        local success, friends = pcall(function()
+            return Players:GetFriendsAsync(player.UserId)
+        end)
+        if success then
+            for friend in friends do
+                totalFriends = totalFriends + 1
+                if friend.IsOnline then
+                    onlineFriends = onlineFriends + 1
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p.UserId == friend.UserId then
+                            inServerFriends = inServerFriends + 1
+                            break
+                        end
+                    end
+                else
+                    offlineFriends = offlineFriends + 1
+                end
+            end
+        end
+        totalFriendsLabel:SetText("Total Friends: " .. totalFriends)
+        onlineFriendsLabel:SetText("Online Friends: " .. onlineFriends)
+        offlineFriendsLabel:SetText("Offline Friends: " .. offlineFriends)
+        inServerFriendsLabel:SetText("Friends in Server: " .. inServerFriends)
+    end
+end)
+
+-- Tab: Updates
+Tabs.Updates:Section({ Title = "Update Logs" })
+Tabs.Updates:Button({
+    Title = "View Updates",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
+        WindUI:Notify({
+            Title = "Update Log - Part 1",
+            Content = "- English-Vietnamese\n- Available on all clients\n- Works on all clients",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1)
+        WindUI:Notify({
+            Title = "Update Log - Part 2",
+            Content = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1)
+        WindUI:Notify({
+            Title = "Update Log - Part 3",
+            Content = "- Tool support\n- Weekly updates",
+            Icon = "bell",
+            Duration = 5,
+        })
     end
 })
 
--- Tab: Kaitun
-Tabs.KaitunTab:Section({ Title = "Kaitun Scripts" })
-
-Tabs.KaitunTab:Button({
-    Title = "Kaitun",
-    Desc = "Chạy script Kaitun",
+-- Tab: All Executor Scripts
+Tabs.AllExecutorScripts:Section({ Title = "Executor UI Scripts" })
+Tabs.AllExecutorScripts:Button({
+    Title = "Fluent UI",
+    Desc = "Run Fluent UI script",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
     end
 })
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunDF",
-    Desc = "Chạy script KaitunDF",
+Tabs.AllExecutorScripts:Button({
+    Title = "WindUI",
+    Desc = "Run WindUI script",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
+        loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
     end
 })
-
-Tabs.KaitunTab:Button({
-    Title = "Marukaitun",
-    Desc = "Chạy script Marukaitun-Mobile",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
-    end
-})
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunFisch",
-    Desc = "Chạy script KaitunFisch",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
-    end
-})
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunAd",
-    Desc = "Chạy script KaitunAd",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
-    end
-})
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunKI",
-    Desc = "Chạy script KaitunKI",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
-    end
-})
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunAR",
-    Desc = "Chạy script Kaitunar",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
-    end
-})
-
-Tabs.KaitunTab:Button({
-    Title = "KaitunAV",
-    Desc = "Chạy script KaitunAV",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
-    end
-})
-
--- Tab: Main
-Tabs.MainTab:Section({ Title = "Script" })
-
-Tabs.MainTab:Button({
-    Title = "W-Azure",
-    Desc = "Chạy script W-Azure",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazure.lua"))()
-    end
-})
-
-Tabs.MainTab:Button({
-    Title = "Maru Hub",
-    Desc = "Chạy script Maru Hub-Mobile",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
-    end
-})
-
-Tabs.MainTab:Button({
-    Title = "Banana Hub 1",
-    Desc = "Chạy script Banana Hub (Phiên bản 1)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
-    end
-})
-
-Tabs.MainTab:Button({
-    Title = "Banana Hub 2",
-    Desc = "Chạy script Banana Hub (Phiên bản 2)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
-    end
-})
-
-Tabs.MainTab:Button({
-    Title = "Banana Hub 3",
-    Desc = "Chạy script Banana Hub (Phiên bản 3)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
-    end
-})
-
-Tabs.MainTab:Button({
-    Title = "All Executor Here",
-    Desc = "Sao chép link tải executor",
+Tabs.AllExecutorScripts:Button({
+    Title = "Delta UI",
+    Desc = "Copy Delta UI link",
     Callback = function()
         if setclipboard then
-            setclipboard("https://lion-executor.pages.dev/")
-            Window:Notification({
-                Title = "LionHub",
-                Text = "Đã sao chép link: https://lion-executor.pages.dev/",
-                Duration = 3
-            })
-        else
-            Window:Notification({
-                Title = "LionHub",
-                Text = "Executor không hỗ trợ sao chép. Link: https://lion-executor.pages.dev/",
-                Duration = 5
-            })
+            setclipboard("https://delta-executor.com/")
+            Window:Notification({ Title = "Lion Hub", Text = "Copied Delta UI link!", Duration = 3 })
         end
     end
 })
 
-Tabs.MainTab:Button({
-    Title = "Server Discord Hỗ Trợ",
-    Desc = "Tham gia server Discord để được hỗ trợ",
+-- Tab: WindUI Lib Info
+Tabs.WindUILibInfo:Section({ Title = "WindUI Library Info" })
+Tabs.WindUILibInfo:Label({ Text = "WindUI Library" })
+Tabs.WindUILibInfo:Label({ Text = "Version: Latest" })
+Tabs.WindUILibInfo:Label({ Text = "Author: Unknown" })
+Tabs.WindUILibInfo:Label({ Text = "Source: https://tree-hub.vercel.app/api/UI/WindUI" })
+Tabs.WindUILibInfo:Label({ Text = "Description: A powerful UI library for Roblox scripting." })
+Tabs.WindUILibInfo:Button({
+    Title = "Copy Source Link",
     Callback = function()
-        local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-        if request then
-            request({
-                Url = "http://127.0.0.1:6463/rpc?v=1",
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                    ["Origin"] = "https://discord.com"
-                },
-                Body = HttpService:JSONEncode({
-                    cmd = "INVITE_BROWSER",
-                    args = {
-                        code = "wmUmGVG6ut"
-                    },
-                    nonce = HttpService:GenerateGUID(false)
-                })
-            })
-        else
-            Window:Notification({
-                Title = "LionHub",
-                Text = "Executor của bạn không hỗ trợ mở link Discord. Vui lòng sao chép link: https://discord.gg/wmUmGVG6ut",
-                Duration = 5
-            })
+        if setclipboard then
+            setclipboard("https://tree-hub.vercel.app/api/UI/WindUI")
+            Window:Notification({ Title = "Lion Hub", Text = "Copied WindUI source link!", Duration = 3 })
         end
-    end
-})
-
-Tabs.MainTab:Section({ Title = "Cài Đặt Giao Diện" })
-
-Tabs.MainTab:Dropdown({
-    Title = "Đổi Giao Diện",
-    Values = { "Tối", "Sáng", "Xanh Nước Biển", "Xanh Lá", "Tím" },
-    Value = "Tối",
-    Callback = function(value)
-        local themeMap = {
-            ["Tối"] = "Dark",
-            ["Sáng"] = "Light",
-            ["Xanh Nước Biển"] = "Aqua",
-            ["Xanh Lá"] = "Green",
-            ["Tím"] = "Amethyst"
-        }
-        WindUI:SetTheme(themeMap[value])
-        Window:Notification({
-            Title = "LionHub",
-            Text = "Đã đổi giao diện thành " .. value,
-            Duration = 3
-        })
-    end
-})
-
--- Tab: Nhật Ký Cập Nhật
-Tabs.NotificationTab:Section({ Title = "Thông Tin Cập Nhật" })
-
-Tabs.NotificationTab:Button({
-    Title = "Xem Nhật Ký Cập Nhật",
-    Callback = function() 
-        WindUI:Notify({
-            Title = "Nhật Ký Cập Nhật - Phần 1",
-            Content = "- Tiếng Anh-Tiếng Việt\n- Có sẵn trên mọi client\n- Dùng Được trên tất cả client",
-            Icon = "bell",
-            Duration = 5,
-        })
-        wait(5.1)
-        WindUI:Notify({
-            Title = "Nhật Ký Cập Nhật - Phần 2",
-            Content = "- Android - iOS - PC\n- Hỗ Trợ Script Tiếng Việt Dành Cho Người Việt",
-            Icon = "bell",
-            Duration = 5,
-        })
-        wait(5.1)
-        WindUI:Notify({
-            Title = "Nhật Ký Cập Nhật - Phần 3",
-            Content = "- Hỗ Trợ các công cụ\n- Và Update Mỗi Tuần",
-            Icon = "bell",
-            Duration = 5,
-        })
     end
 })
