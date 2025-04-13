@@ -483,7 +483,7 @@ Tabs.Kaitun:Button({
     Title = "KaitunDF",
     Desc = "Run KaitunDF script",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDf.lua"))()
     end
 })
 Tabs.Kaitun:Button({
