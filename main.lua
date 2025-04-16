@@ -4,78 +4,48 @@ local playerGui = player:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
+local VoiceChatService = game:GetService("VoiceChatService")
 
--- Kiểm tra thiết bị
+-- Tải WindUI Lib
+local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+
+-- Kiểm tra thiết bị (mobile hay PC)
 local isMobile = UserInputService.TouchEnabled
-local thumbnailImage = isMobile and "rbxassetid://5341014178" or "rbxassetid://13953902891"
 
--- Thời gian bắt đầu để tính thời gian tải
+-- Chọn Asset ID dựa trên thiết bị
+local thumbnailImage
+if isMobile then
+    thumbnailImage = "rbxassetid://5341014178" -- Ảnh cho mobile
+else
+    thumbnailImage = "rbxassetid://13953902891" -- Ảnh cho PC
+end
+
+-- Thời gian bắt đầu để tính thời gian UI hiển thị
 local startTime = tick()
 
--- Key System GUI
-local KeyGui = Instance.new("ScreenGui")
-KeyGui.Name = "KeyGui"
-KeyGui.Parent = playerGui
-KeyGui.ResetOnSpawn = false
-
-local KeyFrame = Instance.new("Frame")
-KeyFrame.Size = UDim2.new(0, 300, 0, 200)
-KeyFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-KeyFrame.Parent = KeyGui
-
-local KeyCorner = Instance.new("UICorner")
-KeyCorner.CornerRadius = UDim.new(0, 8)
-KeyCorner.Parent = KeyFrame
-
-local KeyThumbnail = Instance.new("ImageLabel")
-KeyThumbnail.Size = UDim2.new(0, 50, 0, 50)
-KeyThumbnail.Position = UDim2.new(0.5, -25, 0, 10)
-KeyThumbnail.BackgroundTransparency = 1
-KeyThumbnail.Image = thumbnailImage
-KeyThumbnail.Parent = KeyFrame
-
-local KeyTitle = Instance.new("TextLabel")
-KeyTitle.Size = UDim2.new(0, 260, 0, 30)
-KeyTitle.Position = UDim2.new(0.5, -130, 0, 70)
-KeyTitle.BackgroundTransparency = 1
-KeyTitle.Text = "Lion Hub Key System"
-KeyTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
-KeyTitle.TextSize = 16
-KeyTitle.Font = Enum.Font.SourceSansBold
-KeyTitle.Parent = KeyFrame
-
-local KeyInput = Instance.new("TextBox")
-KeyInput.Size = UDim2.new(0, 260, 0, 40)
-KeyInput.Position = UDim2.new(0.5, -130, 0, 110)
-KeyInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyInput.PlaceholderText = "Nhập key..."
-KeyInput.Text = ""
-KeyInput.Parent = KeyFrame
-
-local SubmitButton = Instance.new("TextButton")
-SubmitButton.Size = UDim2.new(0, 100, 0, 40)
-SubmitButton.Position = UDim2.new(0.5, -50, 0, 160)
-SubmitButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
-SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SubmitButton.Text = "Xác nhận"
-SubmitButton.Parent = KeyFrame
-
-local validKeys = { "pino_ontop", "LionHub", "VietNam" }
-SubmitButton.MouseButton1Click:Connect(function()
-    local enteredKey = KeyInput.Text
-    for _, key in ipairs(validKeys) do
-        if enteredKey == key then
-            KeyGui:Destroy()
-            initializeUI()
-            return
-        end
-    end
-    KeyInput.Text = ""
-    KeyInput.PlaceholderText = "Key sai! Thử lại."
-end)
+-- Tạo cửa sổ WindUI với key system tích hợp
+local Window = WindUI:CreateWindow({
+    Title = "Lion Hub", -- Đã bỏ 🇻🇳
+    Icon = "door-open",
+    Author = "Pino_azure",
+    Folder = "LionHubData",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "Dark",
+    SideBarWidth = 200,
+    HasOutline = false,
+    KeySystem = { 
+        Key = { "pino_ontop", "LionHub", "VietNam" },
+        Note = "Nhập key chính xác để tiếp tục.",
+        URL = "https://discord.gg/wmUmGVG6ut",
+        SaveKey = true,
+        Thumbnail = {
+            Image = thumbnailImage,
+            Title = "Lion Hub Key System"
+        },
+    },
+})
 
 -- Hàm định dạng thời gian
 local function formatTime(seconds)
@@ -88,7 +58,7 @@ local function formatTime(seconds)
     end
 end
 
--- Hàm gửi webhook
+-- Gửi Webhook khi UI được tải thành công
 local function sendWebhook()
     local executorName = "Unknown"
     if syn then
@@ -119,7 +89,7 @@ local function sendWebhook()
         }}
     }
 
-    local WEBHOOK_URL = "https://discord.com/api/webhooks/1358378646355710015/KvJJWS0CI54NoCNucVz4KtEUw5Vwq_qdPjROHYQpTx6NywUz8ueX6LiB0tbdpjeMNIrM"
+    local WEBHOOK_URL = "https://discord.com/api/webhooks/1362080207359447120/RpIG9Y2J7fnKCofc28KyFsIInEq-1_6UzA4QeWr1QihEn7M4BVsE2o8iwwN89lsFFJEf"
     local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
     if request then
         request({
@@ -133,187 +103,11 @@ local function sendWebhook()
     end
 end
 
--- Hàm hiển thị thông báo tùy chỉnh
-local function showNotification(title, content, duration)
-    local notifyGui = Instance.new("ScreenGui", playerGui)
-    notifyGui.ResetOnSpawn = false
-    local notifyFrame = Instance.new("Frame", notifyGui)
-    notifyFrame.Size = UDim2.new(0, 250, 0, 80)
-    notifyFrame.Position = UDim2.new(0.5, -125, 0, 10)
-    notifyFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    local corner = Instance.new("UICorner", notifyFrame)
-    corner.CornerRadius = UDim.new(0, 8)
-    local notifyTitle = Instance.new("TextLabel", notifyFrame)
-    notifyTitle.Size = UDim2.new(1, -10, 0, 20)
-    notifyTitle.Position = UDim2.new(0, 5, 0, 5)
-    notifyTitle.BackgroundTransparency = 1
-    notifyTitle.Text = title
-    notifyTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
-    notifyTitle.TextSize = 16
-    notifyTitle.Font = Enum.Font.SourceSansBold
-    local notifyText = Instance.new("TextLabel", notifyFrame)
-    notifyText.Size = UDim2.new(1, -10, 0, 50)
-    notifyText.Position = UDim2.new(0, 5, 0, 25)
-    notifyText.BackgroundTransparency = 1
-    notifyText.Text = content
-    notifyText.TextColor3 = Color3.fromRGB(200, 200, 200)
-    notifyText.TextSize = 12
-    notifyText.Font = Enum.Font.SourceSans
-    notifyText.TextWrapped = true
-    spawn(function()
-        wait(duration or 3)
-        notifyGui:Destroy()
-    end)
-end
-
--- Hàm khởi tạo UI chính
-function initializeUI()
-    -- Tải Ocerium UI
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/Ocerium_Project/main/Library.lua"))()
-    local Window = Library.Main("Lion Hub", "RightShift")
-
-    -- Tạo tabs
-    local Tabs = {
-        MainHub = Window.NewTab("Main Hub"),
-        Kaitun = Window.NewTab("Kaitun"),
-        Main = Window.NewTab("Main"),
-        AutoBounty = Window.NewTab("AutoBounty"),
-        Updates = Window.NewTab("Updates"),
-        AllExecutorScripts = Window.NewTab("Executor Scripts"),
-        LibInfo = Window.NewTab("UI Lib Info"),
-        Settings = Window.NewTab("Settings"),
-    }
-
-    -- Tab MainHub
-    local MainHubSection = Tabs.MainHub.NewSection("Main Hub Script")
-    MainHubSection.NewButton("MainHub", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/mainhub.lua"))()
-    end)
-
-    -- Tab Kaitun
-    local KaitunSection = Tabs.Kaitun.NewSection("Kaitun Scripts")
-    KaitunSection.NewButton("Kaitun", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Kaitun.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunDF", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunDF.lua"))()
-    end)
-    KaitunSection.NewButton("Marukaitun", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/Marukaitun.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunFisch", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunfisch.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunAd", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/KaitunAd.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunKI", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunKI.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunAR", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunar.lua"))()
-    end)
-    KaitunSection.NewButton("KaitunAV", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/kaitunAV.lua"))()
-    end)
-
-    -- Tab Main
-    local MainSection = Tabs.Main.NewSection("Scripts")
-    MainSection.NewButton("Maru Hub", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/maru.lua"))()
-    end)
-    MainSection.NewButton("Banana Hub 1", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana1.lua"))()
-    end)
-    MainSection.NewButton("Banana Hub 2", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/banana2.lua"))()
-    end)
-    MainSection.NewButton("Banana Hub 3", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/main.lua"))()
-    end)
-
-    -- Tab AutoBounty
-    local AutoBountySection = Tabs.AutoBounty.NewSection("AutoBounty Features")
-    AutoBountySection.NewButton("W-Azure AutoBounty", function()
-        showNotification("AutoBounty", "Running W-Azure AutoBounty script...", 3)
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/wazureBounty.lua"))()
-    end)
-    AutoBountySection.NewButton("Banana AutoBounty", function()
-        showNotification("AutoBounty", "Running Banana AutoBounty script...", 3)
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Vietnam/refs/heads/main/AutoBounty.lua"))()
-    end)
-    AutoBountySection.NewButton("Check Bounty", function()
-        local bounty = 0
-        pcall(function()
-            bounty = player.Data.Bounty.Value
-        end)
-        showNotification("Bounty", "Current bounty: " .. tostring(bounty), 5)
-    end)
-
-    -- Tab Updates
-    local UpdatesSection = Tabs.Updates.NewSection("Update Logs")
-    UpdatesSection.NewButton("View Updates", function()
-        local messages = {
-            {title = "Update Log - Part 1", content = "- English-Vietnamese\n- Available on all clients\n- Works on all clients", duration = 5},
-            {title = "Update Log - Part 2", content = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users", duration = 5},
-            {title = "Update Log - Part 3", content = "- Tool support\n- Weekly updates", duration = 5}
-        }
-        for _, msg in ipairs(messages) do
-            showNotification(msg.title, msg.content, msg.duration)
-            wait(msg.duration + 0.1)
-        end
-    end)
-
-    -- Tab AllExecutorScripts
-    local ExecutorScriptsSection = Tabs.AllExecutorScripts.NewSection("Executor UI Scripts")
-    ExecutorScriptsSection.NewButton("Fluent UI", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
-    end)
-    ExecutorScriptsSection.NewButton("WindUI", function()
-        loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
-    end)
-    ExecutorScriptsSection.NewButton("Delta UI", function()
-        if setclipboard then
-            setclipboard("https://delta-executor.com/")
-            showNotification("Lion Hub", "Copied Delta UI link!", 3)
-        end
-    end)
-
-    -- Tab LibInfo
-    local LibInfoSection = Tabs.LibInfo.NewSection("UI Code Examples")
-    LibInfoSection.NewLabel("Example Code:")
-    LibInfoSection.NewLabel([[
-local message = "Hello"
-print(message)
-
-if message == "Hello" then
-    print("Greetings!")
-end
-    ]])
-    LibInfoSection.NewLabel("Ocerium UI Example:")
-    LibInfoSection.NewLabel([[
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/Ocerium_Project/main/Library.lua"))()
-local Window = Library.Main("Example UI", "RightShift")
-local Tab = Window.NewTab("Tab")
-local Section = Tab.NewSection("Section")
-Section.NewButton("Click me", function()
-    print("Button clicked!")
+spawn(function()
+    sendWebhook()
 end)
-    ]])
 
-    -- Tab Settings
-    local SettingsSection = Tabs.Settings.NewSection("Settings")
-    SettingsSection.NewToggle("Toggle Info Frame", function(bool)
-        infoGui.Enabled = bool
-    end, true)
-
-    -- Gửi webhook
-    spawn(function()
-        sendWebhook()
-    end)
-end
-
--- Achievement Notification
+-- Tạo thông báo kiểu "Achievement Unlocked" cho Welcome
 local executorName = "Unknown"
 if syn then executorName = "Synapse X"
 elseif fluxus then executorName = "Fluxus"
@@ -336,11 +130,13 @@ achievementFrame.Visible = false
 
 local achievementCorner = Instance.new("UICorner")
 achievementCorner.CornerRadius = UDim.new(0, 8)
-achievementCorner.Parent interiores = Instance.new("ImageLabel")
+achievementCorner.Parent = achievementFrame
+
+local achievementIcon = Instance.new("ImageLabel")
 achievementIcon.Size = UDim2.new(0, 50, 0, 50)
 achievementIcon.Position = UDim2.new(0, 10, 0.5, -25)
 achievementIcon.BackgroundTransparency = 1
-achievementIcon.Image = "rbxassetid://7072701"
+achievementIcon.Image = "rbxassetid://7072701" -- Icon kiểu danh hiệu
 achievementIcon.Parent = achievementFrame
 
 local achievementTitle = Instance.new("TextLabel")
@@ -358,7 +154,7 @@ local achievementDesc = Instance.new("TextLabel")
 achievementDesc.Size = UDim2.new(0, 220, 0, 40)
 achievementDesc.Position = UDim2.new(0, 70, 0, 30)
 achievementDesc.BackgroundTransparency = 1
-achievementDesc.Text = "Mừng 50 Năm Giải Phóng Đất Nước\nExecutor: " .. executorName
+achievementDesc.Text = "Mừng 50 Năm Giải Phóng Đất Nước\nExecutor: " .. executorName -- Đã bỏ 🇻🇳
 achievementDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
 achievementDesc.TextSize = 12
 achievementDesc.Font = Enum.Font.SourceSans
@@ -366,6 +162,7 @@ achievementDesc.TextXAlignment = Enum.TextXAlignment.Left
 achievementDesc.TextWrapped = true
 achievementDesc.Parent = achievementFrame
 
+-- Hiệu ứng hiển thị thông báo danh hiệu
 spawn(function()
     achievementFrame.Visible = true
     achievementFrame.Position = UDim2.new(1, 0, 0, 10)
@@ -376,7 +173,7 @@ spawn(function()
     achievementFrame.Visible = false
 end)
 
--- Khung thông tin (Info Frame)
+-- Tạo ScreenGui cho thông tin (infoFrame) với hai cột
 local infoGui = Instance.new("ScreenGui")
 infoGui.Name = "InfoGui"
 infoGui.Parent = playerGui
@@ -425,11 +222,12 @@ local infoCorner = Instance.new("UICorner")
 infoCorner.CornerRadius = UDim.new(0, 10)
 infoCorner.Parent = infoFrame
 
+-- Cột trái: Thông tin chính
 local celebrationLabel = Instance.new("TextLabel")
 celebrationLabel.Size = UDim2.new(0.5, -10, 0, 40)
 celebrationLabel.Position = UDim2.new(0, 5, 0, 5)
 celebrationLabel.BackgroundTransparency = 1
-celebrationLabel.Text = "Mừng 50 Năm Giải Phóng Đất Nước"
+celebrationLabel.Text = "Mừng 50 Năm Giải Phóng Đất Nước" -- Đã bỏ 🇻🇳
 celebrationLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 celebrationLabel.TextSize = isMobile and 16 or 20
 celebrationLabel.Font = Enum.Font.SourceSansBold
@@ -493,6 +291,7 @@ thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
 thanksLabel.TextWrapped = true
 thanksLabel.Parent = infoFrame
 
+-- Hiệu ứng đánh máy cho dòng "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
 local thanksText = "Cảm Ơn Đã Tin Tưởng Dùng Lion Hub"
 spawn(function()
     for i = 1, #thanksText do
@@ -501,6 +300,7 @@ spawn(function()
     end
 end)
 
+-- Cột phải: Thông tin Level, Fragment, Beli, Song Đao Nguyền Rủa (CDK), Soul Guitar (SGT), Tộc V4 (V4)
 local levelLabel = Instance.new("TextLabel")
 levelLabel.Size = UDim2.new(0.5, -10, 0, 20)
 levelLabel.Position = UDim2.new(0.5, 5, 0, 5)
@@ -528,7 +328,7 @@ beliLabel.Size = UDim2.new(0.5, -10, 0, 20)
 beliLabel.Position = UDim2.new(0.5, 5, 0, 45)
 beliLabel.BackgroundTransparency = 1
 beliLabel.Text = "Beli: 0"
-beliLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+beliLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
 beliLabel.TextSize = isMobile and 12 or 14
 beliLabel.Font = Enum.Font.SourceSans
 beliLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -570,6 +370,7 @@ v4Label.Parent = infoFrame
 local lastTime = tick()
 local frameCount = 0
 
+-- Cập nhật thông tin trong infoFrame
 RunService.RenderStepped:Connect(function()
     frameCount = frameCount + 1
     local currentTime = tick()
@@ -582,26 +383,31 @@ RunService.RenderStepped:Connect(function()
     vietnamDateLabel.Text = "VN Date: " .. os.date("%d/%m/%Y", os.time() + 7 * 3600)
 end)
 
+-- Cập nhật thông tin Level, Fragment, Beli, Song Đao Nguyền Rủa (CDK), Soul Guitar (SGT), Tộc V4 (V4)
 spawn(function()
     while wait(1) do
+        -- Cập nhật Level
         local level = 0
         pcall(function()
-            level = player.Data.Level.Value
+            level = player.Data.Level.Value -- Lấy Level từ Data của người chơi
         end)
         levelLabel.Text = "Level: " .. level
 
+        -- Cập nhật Fragment
         local fragment = 0
         pcall(function()
-            fragment = player.Data.Fragments.Value
+            fragment = player.Data.Fragments.Value -- Lấy Fragments từ Data của người chơi
         end)
         fragmentLabel.Text = "Fragment: " .. fragment
 
+        -- Cập nhật Beli
         local beli = 0
         pcall(function()
-            beli = player.Data.Beli.Value
+            beli = player.Data.Beli.Value -- Lấy Beli từ Data của người chơi
         end)
         beliLabel.Text = "Beli: " .. beli
 
+        -- Kiểm tra Song Đao Nguyền Rủa (CDK)
         local hasCDK = false
         pcall(function()
             hasCDK = player.Backpack:FindFirstChild("Cursed Dual Katana") or 
@@ -609,6 +415,7 @@ spawn(function()
         end)
         cdkLabel.Text = "Song Đao Nguyền Rủa: " .. (hasCDK and "✅" or "❌")
 
+        -- Kiểm tra Soul Guitar (SGT)
         local hasSGT = false
         pcall(function()
             hasSGT = player.Backpack:FindFirstChild("Soul Guitar") or 
@@ -616,12 +423,13 @@ spawn(function()
         end)
         sgtLabel.Text = "Soul Guitar: " .. (hasSGT and "✅" or "❌")
 
+        -- Kiểm tra Tộc V4
         local hasV4 = false
         pcall(function()
-            local race = player.Data.Race.Value
-            local v4Progress = player.Data.RaceV4Progress
+            local race = player.Data.Race.Value -- Lấy thông tin tộc
+            local v4Progress = player.Data.RaceV4Progress -- Kiểm tra tiến trình V4 (giả định)
             hasV4 = race and (race == "Human" or race == "Mink" or race == "Fishman" or race == "Skypian" or race == "Cyborg" or race == "Ghoul") and 
-                    v4Progress and v4Progress.Value == "Awakened"
+                    v4Progress and v4Progress.Value == "Awakened" -- Giả định V4 đã được thức tỉnh
         end)
         v4Label.Text = "Tộc V4: " .. (hasV4 and "✅" or "❌")
     end
@@ -630,8 +438,398 @@ end)
 -- Anti-AFK
 spawn(function()
     while true do
+        local VirtualUser = game:GetService("VirtualUser")
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
         wait(60)
     end
 end)
+
+-- Tạo các tab với WindUI
+local Tabs = {
+    MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
+    Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
+    Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
+    AutoBounty = Window:Tab({ Title = "AutoBounty", Icon = "sword", Desc = "Automated bounty hunting features." }),
+    Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
+    AllExecutorScripts = Window:Tab({ Title = "All Executor Scripts", Icon = "code", Desc = "Collection of executor UI scripts." }),
+    WindUILibInfo = Window:Tab({ Title = "WindUI Lib Info", Icon = "code", Desc = "Displays and manages code snippets." }),
+    WindowTab = Window:Tab({ Title = "Window and File Configuration", Icon = "settings", Desc = "Manage window settings and file configurations." }),
+    Leviathan = Window:Tab({ Title = "Leviathan", Icon = "anchor", Desc = "Leviathan scripts and features." }), -- Tab mới
+}
+
+-- Đảm bảo tab đầu tiên được chọn
+Window:SelectTab(1)
+
+-- Tab: Main Hub
+Tabs.MainHub:Section({ Title = "Main Hub Script" })
+Tabs.MainHub:Button({
+    Title = "MainHub",
+    Desc = "Run MainHub script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/mainhub.lua"))()
+    end
+})
+
+-- Tab: Kaitun
+Tabs.Kaitun:Section({ Title = "Kaitun Scripts" })
+Tabs.Kaitun:Button({
+    Title = "Kaitun",
+    Desc = "Run Kaitun script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Kaitun.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunDF",
+    Desc = "Run KaitunDF script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunDF.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "Marukaitun",
+    Desc = "Run Marukaitun-Mobile script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Marukaitun.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunFisch",
+    Desc = "Run KaitunFisch script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunfisch.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAd",
+    Desc = "Run KaitunAd script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunAd.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunKI",
+    Desc = "Run KaitunKI script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunKI.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAR",
+    Desc = "Run KaitunAR script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunar.lua"))()
+    end
+})
+Tabs.Kaitun:Button({
+    Title = "KaitunAV",
+    Desc = "Run KaitunAV script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunAV.lua"))()
+    end
+})
+
+-- Tab: Main
+Tabs.Main:Section({ Title = "Scripts" })
+Tabs.Main:Button({
+    Title = "W-Azure",
+    Desc = "Run W-Azure script (Locked)",
+    Locked = true,
+    Callback = function()
+        -- Nút bị khóa nên không làm gì
+    end
+})
+Tabs.Main:Button({
+    Title = "Maru Hub",
+    Desc = "Run Maru Hub-Mobile script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/maru.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 1",
+    Desc = "Run Banana Hub (Version 1)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana1.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 2",
+    Desc = "Run Banana Hub (Version 2)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana2.lua"))()
+    end
+})
+Tabs.Main:Button({
+    Title = "Banana Hub 3",
+    Desc = "Run Banana Hub (Version 3)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/main.lua"))()
+    end
+})
+
+-- Tab: AutoBounty
+Tabs.AutoBounty:Section({ Title = "AutoBounty Features" })
+Tabs.AutoBounty:Button({
+    Title = "W-Azure AutoBounty",
+    Desc = "Run W-Azure AutoBounty script",
+    Callback = function()
+        WindUI:Notify({
+            Title = "AutoBounty",
+            Content = "Running W-Azure AutoBounty script...",
+            Icon = "sword",
+            Duration = 3,
+        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/wazureBounty.lua"))()
+    end
+})
+Tabs.AutoBounty:Button({
+    Title = "Banana AutoBounty",
+    Desc = "Run Banana AutoBounty script",
+    Callback = function()
+        WindUI:Notify({
+            Title = "AutoBounty",
+            Content = "Running Banana AutoBounty script...",
+            Icon = "sword",
+            Duration = 3,
+        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/AutoBounty.lua"))()
+    end
+})
+Tabs.AutoBounty:Button({
+    Title = "Check Bounty",
+    Desc = "Check current bounty amount",
+    Callback = function()
+        local bounty = 0
+        pcall(function()
+            bounty = player.Data.Bounty.Value
+        end)
+        WindUI:Notify({
+            Title = "Bounty",
+            Content = "Current bounty: " .. tostring(bounty),
+            Icon = "coin",
+            Duration = 5,
+        })
+    end
+})
+
+-- Tab: Updates
+Tabs.Updates:Section({ Title = "Update Logs" })
+Tabs.Updates:Button({
+    Title = "View Updates",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Update Log - Part 1",
+            Content = "- English-Vietnamese\n- Available on all clients\n- Works on all clients",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1)
+        WindUI:Notify({
+            Title = "Update Log - Part 2",
+            Content = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users",
+            Icon = "bell",
+            Duration = 5,
+        })
+        wait(5.1)
+        WindUI:Notify({
+            Title = "Update Log - Part 3",
+            Content = "- Tool support\n- Weekly updates",
+            Icon = "bell",
+            Duration = 5,
+        })
+    end
+})
+
+-- Tab: All Executor Scripts
+Tabs.AllExecutorScripts:Section({ Title = "Executor UI Scripts" })
+Tabs.AllExecutorScripts:Button({
+    Title = "Fluent UI",
+    Desc = "Run Fluent UI script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/master/Example.lua"))()
+    end
+})
+Tabs.AllExecutorScripts:Button({
+    Title = "WindUI",
+    Desc = "Run WindUI script",
+    Callback = function()
+        loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+    end
+})
+Tabs.AllExecutorScripts:Button({
+    Title = "Delta UI",
+    Desc = "Copy Delta UI link",
+    Callback = function()
+        if setclipboard then
+            setclipboard("https://delta-executor.com/")
+            Window:Notification({ Title = "Lion Hub", Text = "Copied Delta UI link!", Duration = 3 })
+        end
+    end
+})
+
+-- Tab: WindUI Lib Info
+Tabs.WindUILibInfo:Section({ Title = "WindUI Code Examples" })
+Tabs.WindUILibInfo:Code({
+    Title = "Example Code",
+    Code = [[
+local message = "Hello"
+print(message)
+
+if message == "Hello" then
+    print("Greetings!")
+end
+    ]],
+})
+Tabs.WindUILibInfo:Code({
+    Title = "WindUI Example",
+    Code = [[
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua"))()
+
+local Window = WindUI:CreateWindow({
+    Title = "WindUI Example",
+    Icon = "image",
+    Author = ".ftgs",
+    Folder = "CloudHub",
+    Size = UDim2.fromOffset(580, 460),
+})
+    ]],
+})
+
+-- Tab: Window and File Configuration
+Tabs.WindowTab:Section({ Title = "Window" })
+
+local themeValues = {}
+for name, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themeValues, name)
+end
+
+local themeDropdown = Tabs.WindowTab:Dropdown({
+    Title = "Select Theme",
+    Multi = false,
+    AllowNone = false,
+    Value = nil,
+    Values = themeValues,
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+    end
+})
+themeDropdown:Select(WindUI:GetCurrentTheme())
+
+local ToggleTransparency = Tabs.WindowTab:Toggle({
+    Title = "Toggle Window Transparency",
+    Callback = function(e)
+        Window:ToggleTransparency(e)
+    end,
+    Value = WindUI:GetTransparency()
+})
+
+Tabs.WindowTab:Section({ Title = "Save" })
+
+local fileNameInput = ""
+Tabs.WindowTab:Input({
+    Title = "Write File Name",
+    PlaceholderText = "Enter file name",
+    Callback = function(text)
+        fileNameInput = text
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Save File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local folderPath = "WindUI"
+            makefolder(folderPath)
+            local filePath = folderPath .. "/" .. fileNameInput .. ".json"
+            local jsonData = HttpService:JSONEncode({ Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
+            writefile(filePath, jsonData)
+        end
+    end
+})
+
+Tabs.WindowTab:Section({ Title = "Load" })
+
+local filesDropdown
+local function ListFiles()
+    local files = {}
+    for _, file in ipairs(listfiles("WindUI")) do
+        local fileName = file:match("([^/]+)%.json$")
+        if fileName then
+            table.insert(files, fileName)
+        end
+    end
+    return files
+end
+
+filesDropdown = Tabs.WindowTab:Dropdown({
+    Title = "Select File",
+    Multi = false,
+    AllowNone = true,
+    Values = ListFiles(),
+    Callback = function(selectedFile)
+        fileNameInput = selectedFile
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Load File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local filePath = "WindUI/" .. fileNameInput .. ".json"
+            if isfile(filePath) then
+                local jsonData = readfile(filePath)
+                local data = HttpService:JSONDecode(jsonData)
+                if data then
+                    WindUI:Notify({
+                        Title = "File Loaded",
+                        Content = "Loaded data: " .. HttpService:JSONEncode(data),
+                        Duration = 5,
+                    })
+                    if data.Transparent then 
+                        Window:ToggleTransparency(data.Transparent)
+                        ToggleTransparency:SetValue(data.Transparent)
+                    end
+                    if data.Theme then WindUI:SetTheme(data.Theme) end
+                end
+            end
+        end
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Overwrite File",
+    Callback = function()
+        if fileNameInput ~= "" then
+            local folderPath = "WindUI"
+            makefolder(folderPath)
+            local filePath = folderPath .. "/" .. fileNameInput .. ".json"
+            local jsonData = HttpService:JSONEncode({ Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
+            writefile(filePath, jsonData)
+        end
+    end
+})
+
+Tabs.WindowTab:Button({
+    Title = "Refresh List",
+    Callback = function()
+        filesDropdown:Refresh(ListFiles())
+    end
+})
+
+-- Tab: Leviathan
+Tabs.Leviathan:Section({ Title = "Leviathan Script" })
+Tabs.Leviathan:Button({
+    Title = "Run Leviathan",
+    Desc = "Execute the Leviathan script",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Leviathan",
+            Content = "Running Leviathan script...",
+            Icon = "anchor",
+            Duration = 3,
+        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Leviathan.lua"))()
+    end
+})
