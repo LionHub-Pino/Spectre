@@ -1,8 +1,13 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local VoiceChatService = game:GetService("VoiceChatService")
 
--- Tải WindUI Lib (quay lại WindUI để hỗ trợ Key System)
+-- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
 -- Kiểm tra thiết bị (mobile hay PC)
@@ -18,7 +23,7 @@ end
 
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "YOUR MOM",
+    Title = "Krnl",
     Icon = "door-open",
     Author = "Pino_azure",
     Folder = "LionHubData",
@@ -39,142 +44,372 @@ local Window = WindUI:CreateWindow({
     },
 })
 
+-- Anti-AFK
+spawn(function()
+    while true do
+        local VirtualUser = game:GetService("VirtualUser")
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+        wait(60)
+    end
+end)
+
+-- Biến để theo dõi trạng thái của các script
+local ScriptStates = {}
+local ToggleStates = {}
+local ConfigFile = "LionHubData/ToggleStates.json"
+
+-- Hàm lưu trạng thái công tắc
+local function saveToggleStates()
+    local data = {}
+    for toggleName, state in pairs(ToggleStates) do
+        data[toggleName] = state
+    end
+    local success, err = pcall(function()
+        makefolder("LionHubData")
+        writefile(ConfigFile, HttpService:JSONEncode(data))
+    end)
+    if not success then
+        warn("Lỗi khi lưu trạng thái công tắc: " .. err)
+    end
+end
+
+-- Hàm tải trạng thái công tắc
+local function loadToggleStates()
+    local success, data = pcall(function()
+        if isfile(ConfigFile) then
+            return HttpService:JSONDecode(readfile(ConfigFile))
+        end
+        return {}
+    end)
+    if success then
+        for toggleName, state in pairs(data) do
+            ToggleStates[toggleName] = state
+        end
+    else
+        warn("Lỗi khi tải trạng thái công tắc: " .. tostring(data))
+    end
+end
+
+-- Tải trạng thái công tắc khi khởi động
+loadToggleStates()
+
+-- Hàm để chạy hoặc dừng script
+local function toggleScript(scriptName, url, enabled, notifyTitle, notifyIcon)
+    ToggleStates[scriptName] = enabled
+    saveToggleStates()
+    
+    if enabled then
+        if not ScriptStates[scriptName] then
+            WindUI:Notify({
+                Title = notifyTitle,
+                Content = "Đang chạy " .. scriptName .. "...",
+                Icon = notifyIcon,
+                Duration = 3,
+            })
+            pcall(function()
+                loadstring(game:HttpGet(url))()
+                ScriptStates[scriptName] = true
+            end)
+        else
+            WindUI:Notify({
+                Title = notifyTitle,
+                Content = scriptName .. " đã được chạy trước đó!",
+                Icon = notifyIcon,
+                Duration = 3,
+            })
+        end
+    else
+        WindUI:Notify({
+            Title = notifyTitle,
+            Content = "Đã tắt " .. scriptName .. ". Lưu ý: Script có thể không dừng hoàn toàn.",
+            Icon = notifyIcon,
+            Duration = 3,
+        })
+        ScriptStates[scriptName] = false
+    end
+end
+
 -- Tạo các tab với WindUI
 local Tabs = {
-    Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
+    MainHub = Window:Tab({ Title = "Main Hub", Icon = "star", Desc = "Main Hub scripts." }),
     Kaitun = Window:Tab({ Title = "Kaitun", Icon = "flame", Desc = "Kaitun scripts." }),
+    Main = Window:Tab({ Title = "Main", Icon = "shield", Desc = "Main features and scripts." }),
     AutoBounty = Window:Tab({ Title = "AutoBounty", Icon = "sword", Desc = "Automated bounty hunting features." }),
     Updates = Window:Tab({ Title = "Updates", Icon = "bell", Desc = "Update logs and details." }),
     Leviathan = Window:Tab({ Title = "Leviathan", Icon = "anchor", Desc = "Leviathan scripts and features." }),
 }
 
--- Đảm bảo tab đầu tiên (Main) được chọn
+-- Đảm bảo tab đầu tiên được chọn
 Window:SelectTab(1)
 
--- Tab: Main
-Tabs.Main:Section({ Title = "Scripts" })
-Tabs.Main:Button({
-    Title = "W-Azure",
-    Desc = "Run W-Azure script (Locked)",
-    Locked = true,
-    Callback = function()
-        -- Nút bị khóa nên không làm gì
+-- Tab: Main Hub
+Tabs.MainHub:Section({ Title = "Main Hub Script" })
+local mainHubToggle = Tabs.MainHub:Toggle({
+    Title = "MainHub",
+    Desc = "Bật để chạy MainHub script",
+    Value = ToggleStates["MainHub"] or false,
+    Callback = function(enabled)
+        toggleScript("MainHub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/mainhub.lua", enabled, "MainHub", "star")
     end
 })
-Tabs.Main:Button({
-    Title = "Maru Hub",
-    Desc = "Run Maru Hub-Mobile script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/maru.lua"))()
+if ToggleStates["MainHub"] then
+    toggleScript("MainHub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/mainhub.lua", true, "MainHub", "star")
+end
+
+Tabs.MainHub:Toggle({
+    Title = "Auto Close UI",
+    Desc = "Bật để tự động đóng UI",
+    Value = ToggleStates["AutoCloseUI"] or false,
+    Callback = function(enabled)
+        ToggleStates["AutoCloseUI"] = enabled
+        saveToggleStates()
+        if enabled then
+            WindUI:Notify({
+                Title = "Auto Close UI",
+                Content = "Đang đóng UI...",
+                Icon = "door-open",
+                Duration = 2,
+            })
+            wait(2)
+            local success, err = pcall(function()
+                Window:Destroy() -- Đóng UI
+            end)
+            if not success then
+                WindUI:Notify({
+                    Title = "Auto Close UI",
+                    Content = "Lỗi khi đóng UI: " .. tostring(err),
+                    Icon = "door-open",
+                    Duration = 5,
+                })
+            end
+        end
     end
 })
-Tabs.Main:Button({
-    Title = "Banana Hub 1",
-    Desc = "Run Banana Hub (Version 1)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana1.lua"))()
+if ToggleStates["AutoCloseUI"] then
+    WindUI:Notify({
+        Title = "Auto Close UI",
+        Content = "Đang đóng UI...",
+        Icon = "door-open",
+        Duration = 2,
+    })
+    wait(2)
+    local success, err = pcall(function()
+        Window:Destroy() -- Đóng UI
+    end)
+    if not success then
+        WindUI:Notify({
+            Title = "Auto Close UI",
+            Content = "Lỗi khi đóng UI: " .. tostring(err),
+            Icon = "door-open",
+            Duration = 5,
+        })
     end
-})
-Tabs.Main:Button({
-    Title = "Banana Hub 2",
-    Desc = "Run Banana Hub (Version 2)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana2.lua"))()
-    end
-})
-Tabs.Main:Button({
-    Title = "Banana Hub 3",
-    Desc = "Run Banana Hub (Version 3)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana.lua"))()
-    end
-})
+end
 
 -- Tab: Kaitun
 Tabs.Kaitun:Section({ Title = "Kaitun Scripts" })
-Tabs.Kaitun:Button({
+local kaitunToggle = Tabs.Kaitun:Toggle({
     Title = "Kaitun",
-    Desc = "Run Kaitun script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Kaitun.lua"))()
+    Desc = "Bật để chạy Kaitun script",
+    Value = ToggleStates["Kaitun"] or false,
+    Callback = function(enabled)
+        toggleScript("Kaitun", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Kaitun.lua", enabled, "Kaitun", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["Kaitun"] then
+    toggleScript("Kaitun", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Kaitun.lua", true, "Kaitun", "flame")
+end
+
+local kaitunDFToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunDF",
-    Desc = "Run KaitunDF script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunDF.lua"))()
+    Desc = "Bật để chạy KaitunDF script",
+    Value = ToggleStates["KaitunDF"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunDF", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunDF.lua", enabled, "KaitunDF", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["KaitunDF"] then
+    toggleScript("KaitunDF", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunDF.lua", true, "KaitunDF", "flame")
+end
+
+local marukaitunToggle = Tabs.Kaitun:Toggle({
     Title = "Marukaitun",
-    Desc = "Run Marukaitun-Mobile script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Marukaitun.lua"))()
+    Desc = "Bật để chạy Marukaitun-Mobile script",
+    Value = ToggleStates["Marukaitun"] or false,
+    Callback = function(enabled)
+        toggleScript("Marukaitun", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Marukaitun.lua", enabled, "Marukaitun", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["Marukaitun"] then
+    toggleScript("Marukaitun", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Marukaitun.lua", true, "Marukaitun", "flame")
+end
+
+local kaitunFischToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunFisch",
-    Desc = "Run KaitunFisch script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunfisch.lua"))()
+    Desc = "Bật để chạy KaitunFisch script",
+    Value = ToggleStates["KaitunFisch"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunFisch", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunfisch.lua", enabled, "KaitunFisch", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["KaitunFisch"] then
+    toggleScript("KaitunFisch", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunfisch.lua", true, "KaitunFisch", "flame")
+end
+
+local kaitunAdToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunAd",
-    Desc = "Run KaitunAd script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunAd.lua"))()
+    Desc = "Bật để chạy KaitunAd script",
+    Value = ToggleStates["KaitunAd"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunAd", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunAd.lua", enabled, "KaitunAd", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["KaitunAd"] then
+    toggleScript("KaitunAd", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/KaitunAd.lua", true, "KaitunAd", "flame")
+end
+
+local kaitunKIToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunKI",
-    Desc = "Run KaitunKI script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunKI.lua"))()
+    Desc = "Bật để chạy KaitunKI script",
+    Value = ToggleStates["KaitunKI"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunKI", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunKI.lua", enabled, "KaitunKI", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["KaitunKI"] then
+    toggleScript("KaitunKI", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunKI.lua", true, "KaitunKI", "flame")
+end
+
+local kaitunARToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunAR",
-    Desc = "Run KaitunAR script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunar.lua"))()
+    Desc = "Bật để chạy KaitunAR script",
+    Value = ToggleStates["KaitunAR"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunAR", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunar.lua", enabled, "KaitunAR", "flame")
     end
 })
-Tabs.Kaitun:Button({
+if ToggleStates["KaitunAR"] then
+    toggleScript("KaitunAR", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunar.lua", true, "KaitunAR", "flame")
+end
+
+local kaitunAVToggle = Tabs.Kaitun:Toggle({
     Title = "KaitunAV",
-    Desc = "Run KaitunAV script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunAV.lua"))()
+    Desc = "Bật để chạy KaitunAV script",
+    Value = ToggleStates["KaitunAV"] or false,
+    Callback = function(enabled)
+        toggleScript("KaitunAV", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunAV.lua", enabled, "KaitunAV", "flame")
+    end
+})
+if ToggleStates["KaitunAV"] then
+    toggleScript("KaitunAV", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunAV.lua", true, "KaitunAV", "flame")
+end
+
+-- Tab: Main
+Tabs.Main:Section({ Title = "Scripts" })
+local wAzureToggle = Tabs.Main:Toggle({
+    Title = "W-Azure",
+    Desc = "Bật để chạy W-Azure script (Locked)",
+    Value = ToggleStates["W-Azure"] or false,
+    Locked = true,
+    Callback = function(enabled)
+        WindUI:Notify({
+            Title = "W-Azure",
+            Content = "Nút này bị khóa, không thể chạy!",
+            Icon = "shield",
+            Duration = 3,
+        })
     end
 })
 
--- Tab: AutoBounty
-Tabs.AutoBounty:Section({ Title = "AutoBounty Features" })
-Tabs.AutoBounty:Button({
-    Title = "W-Azure AutoBounty",
-    Desc = "Run W-Azure AutoBounty script",
-    Callback = function()
-        WindUI:Notify({
-            Title = "AutoBounty",
-            Content = "Running W-Azure AutoBounty script...",
-            Icon = "sword",
-            Duration = 3,
-        })
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/wazureBounty.lua"))()
+local maruHubToggle = Tabs.Main:Toggle({
+    Title = "Maru Hub",
+    Desc = "Bật để chạy Maru Hub-Mobile script",
+    Value = ToggleStates["Maru Hub"] or false,
+    Callback = function(enabled)
+        toggleScript("Maru Hub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/maru.lua", enabled, "Maru Hub", "shield")
     end
 })
-Tabs.AutoBounty:Button({
+if ToggleStates["Maru Hub"] then
+    toggleScript("Maru Hub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/maru.lua", true, "Maru Hub", "shield")
+end
+
+local bananaHub1Toggle = Tabs.Main:Toggle({
+    Title = "Banana Hub 1",
+    Desc = "Bật để chạy Banana Hub (Version 1)",
+    Value = ToggleStates["Banana Hub 1"] or false,
+    Callback = function(enabled)
+        toggleScript("Banana Hub 1", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana1.lua", enabled, "Banana Hub 1", "shield")
+    end
+})
+if ToggleStates["Banana Hub 1"] then
+    toggleScript("Banana Hub 1", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana1.lua", true, "Banana Hub 1", "shield")
+end
+
+local bananaHub2Toggle = Tabs.Main:Toggle({
+    Title = "Banana Hub 2",
+    Desc = "Bật để chạy Banana Hub (Version 2)",
+    Value = ToggleStates["Banana Hub 2"] or false,
+    Callback = function(enabled)
+        toggleScript("Banana Hub 2", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana2.lua", enabled, "Banana Hub 2", "shield")
+    end
+})
+if ToggleStates["Banana Hub 2"] then
+    toggleScript("Banana Hub 2", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana2.lua", true, "Banana Hub 2", "shield")
+end
+
+local bananaHub3Toggle = Tabs.Main:Toggle({
+    Title = "Banana Hub 3",
+    Desc = "Bật để chạy Banana Hub (Version 3)",
+    Value = ToggleStates["Banana Hub 3"] or false,
+    Callback = function(enabled)
+        toggleScript("Banana Hub 3", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana.lua", enabled, "Banana Hub 3", "shield")
+    end
+})
+if ToggleStates["Banana Hub 3"] then
+    toggleScript("Banana Hub 3", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/main.lua", true, "Banana Hub 3", "shield")
+end
+
+-- Tab: AutoBounty
+Tabs.AutoBounty:Section({ Title = "AutoBounty Features" })
+local wAzureAutoBountyToggle = Tabs.AutoBounty:Toggle({
+    Title = "W-Azure AutoBounty",
+    Desc = "Bật để chạy W-Azure AutoBounty script",
+    Value = ToggleStates["W-Azure AutoBounty"] or false,
+    Callback = function(enabled)
+        toggleScript("W-Azure AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/wazureBounty.lua", enabled, "W-Azure AutoBounty", "sword")
+    end
+})
+if ToggleStates["W-Azure AutoBounty"] then
+    toggleScript("W-Azure AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/wazureBounty.lua", true, "W-Azure AutoBounty", "sword")
+end
+
+local bananaAutoBountyToggle = Tabs.AutoBounty:Toggle({
     Title = "Banana AutoBounty",
-    Desc = "Run Banana AutoBounty script",
+    Desc = "Bật để chạy Banana AutoBounty script",
+    Value = ToggleStates["Banana AutoBounty"] or false,
+    Callback = function(enabled)
+        toggleScript("Banana AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/AutoBounty.lua", enabled, "Banana AutoBounty", "sword")
+    end
+})
+if ToggleStates["Banana AutoBounty"] then
+    toggleScript("Banana AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/AutoBounty.lua", true, "Banana AutoBounty", "sword")
+end
+
+Tabs.AutoBounty:Button({
+    Title = "Check Bounty",
+    Desc = "Kiểm tra số tiền thưởng hiện tại",
     Callback = function()
+        local bounty = 0
+        pcall(function()
+            bounty = player.Data.Bounty.Value
+        end)
         WindUI:Notify({
-            Title = "AutoBounty",
-            Content = "Running Banana AutoBounty script...",
-            Icon = "sword",
-            Duration = 3,
+            Title = "Bounty",
+            Content = "Số tiền thưởng hiện tại: " .. tostring(bounty),
+            Icon = "coin",
+            Duration = 5,
         })
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/AutoBounty.lua"))()
     end
 })
 
@@ -182,24 +417,25 @@ Tabs.AutoBounty:Button({
 Tabs.Updates:Section({ Title = "Update Logs" })
 Tabs.Updates:Button({
     Title = "View Updates",
+    Desc = "Xem nhật ký cập nhật",
     Callback = function()
         WindUI:Notify({
             Title = "Update Log - Part 1",
-            Content = "- English-Vietnamese\n- Available on all clients\n- Works on all clients",
+            Content = "- Hỗ trợ tiếng Anh và tiếng Việt\n- Hoạt động trên mọi client\n- Tương thích với tất cả client",
             Icon = "bell",
             Duration = 5,
         })
         wait(5.1)
         WindUI:Notify({
             Title = "Update Log - Part 2",
-            Content = "- Android - iOS - PC\n- Supports Vietnamese scripts for Vietnamese users",
+            Content = "- Hỗ trợ Android, iOS, PC\n- Script tiếng Việt cho người dùng Việt Nam",
             Icon = "bell",
             Duration = 5,
         })
         wait(5.1)
         WindUI:Notify({
             Title = "Update Log - Part 3",
-            Content = "- Tool support\n- Weekly updates",
+            Content = "- Hỗ trợ công cụ\n- Cập nhật hàng tuần",
             Icon = "bell",
             Duration = 5,
         })
@@ -208,16 +444,14 @@ Tabs.Updates:Button({
 
 -- Tab: Leviathan
 Tabs.Leviathan:Section({ Title = "Leviathan Script" })
-Tabs.Leviathan:Button({
+local leviathanToggle = Tabs.Leviathan:Toggle({
     Title = "Run Leviathan",
-    Desc = "Execute the Leviathan script",
-    Callback = function()
-        WindUI:Notify({
-            Title = "Leviathan",
-            Content = "Running Leviathan script...",
-            Icon = "anchor",
-            Duration = 3,
-        })
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Leviathan.lua"))()
+    Desc = "Bật để chạy Leviathan script",
+    Value = ToggleStates["Leviathan"] or false,
+    Callback = function(enabled)
+        toggleScript("Leviathan", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Leviathan.lua", enabled, "Leviathan", "anchor")
     end
 })
+if ToggleStates["Leviathan"] then
+    toggleScript("Leviathan", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/Leviathan.lua", true, "Leviathan", "anchor")
+end
