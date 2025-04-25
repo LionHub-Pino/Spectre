@@ -1,4 +1,7 @@
--- Khởi tạo các dịch vụ
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+getgenv().Key = "pino_ontop"
+
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -8,48 +11,40 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local VoiceChatService = game:GetService("VoiceChatService")
 
--- Biến cờ để ngăn script chạy lại
 if _G.LionHubLoaded then
     return
 end
 _G.LionHubLoaded = true
 
--- Kiểm tra xem UI đã được tạo chưa để tránh loop
 if playerGui:FindFirstChild("FluentUI") then
     return
 end
 
--- Kiểm tra key
 local ValidKeys = { "pino_ontop", "LionHub", "VietNam", "Seggay" }
 if not getgenv().Key or not table.find(ValidKeys, getgenv().Key) then
     game.Players.LocalPlayer:Kick("Key không hợp lệ! Vui lòng nhập key đúng: pino_ontop, LionHub, VietNam, hoặc Seggay.")
     return
 end
 
--- Tải Fluent UI (thư viện chính thức)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = Fluent.SaveManager
 local InterfaceManager = Fluent.InterfaceManager
 
--- Khởi tạo Fluent UI
 local Options = Fluent.Options
 local Window = Fluent:CreateWindow({
     Title = "Krnl Mobile | Lion Hub",
     SubTitle = "by Pino_azure",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- Hiệu ứng mờ (nếu hỗ trợ)
+    Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Kiểm tra thiết bị (mobile hay PC)
 local isMobile = UserInputService.TouchEnabled
 
--- Lưu tham chiếu ScreenGui để ẩn/hiện
 local fluentGui = playerGui:FindFirstChild("FluentUI") or Window.ScreenGui
 
--- Anti-AFK
 spawn(function()
     while true do
         local VirtualUser = game:GetService("VirtualUser")
@@ -59,12 +54,10 @@ spawn(function()
     end
 end)
 
--- Biến để theo dõi trạng thái
 local ScriptStates = {}
 local ToggleStates = {}
 local ConfigFile = "LionHubData/ToggleStates.json"
 
--- Hàm lưu trạng thái công tắc
 local function saveToggleStates()
     local data = {}
     for toggleName, state in pairs(ToggleStates) do
@@ -79,7 +72,6 @@ local function saveToggleStates()
     end
 end
 
--- Hàm tải trạng thái công tắc
 local function loadToggleStates()
     local success, data = pcall(function()
         if isfile(ConfigFile) then
@@ -96,13 +88,11 @@ local function loadToggleStates()
     end
 end
 
--- Tải trạng thái công tắc khi khởi động
 loadToggleStates()
 
--- Hàm để chạy hoặc dừng script
 local function toggleScript(scriptName, url, enabled, notifyTitle)
     if ToggleStates[scriptName] == enabled then
-        return -- Ngăn chạy lại nếu trạng thái không thay đổi
+        return
     end
     ToggleStates[scriptName] = enabled
     saveToggleStates()
@@ -135,7 +125,6 @@ local function toggleScript(scriptName, url, enabled, notifyTitle)
     end
 end
 
--- Tạo các tab với Fluent UI
 local Tabs = {
     MainHub = Window:AddTab({ Title = "Main Hub", Icon = "star" }),
     Kaitun = Window:AddTab({ Title = "Kaitun", Icon = "flame" }),
@@ -145,10 +134,8 @@ local Tabs = {
     Leviathan = Window:AddTab({ Title = "Leviathan", Icon = "anchor" })
 }
 
--- Đảm bảo tab đầu tiên được chọn
 Window:SelectTab(1)
 
--- Tab: Main Hub
 local mainHubSection = Tabs.MainHub:AddSection("Main Hub Script")
 mainHubSection:AddToggle("MainHubToggle", {
     Title = "MainHub",
@@ -162,51 +149,19 @@ if ToggleStates["MainHub"] then
     toggleScript("MainHub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/mainhub.lua", true, "MainHub")
 end
 
-mainHubSection:AddToggle("AutoCloseUIToggle", {
-    Title = "Auto Close UI",
-    Description = "Bật để ẩn UI (bật lại để hiện)",
-    Default = ToggleStates["AutoCloseUI"] or false,
-    Callback = function(value)
-        ToggleStates["AutoCloseUI"] = value
-        saveToggleStates()
-        if value then
-            Fluent:Notify({
-                Title = "Auto Close UI",
-                Content = "Đang ẩn UI...",
-                Duration = 2
-            })
-            wait(2)
-            local success, err = pcall(function()
-                fluentGui.Enabled = false -- Ẩn UI
-            end)
-            if not success then
-                Fluent:Notify({
-                    Title = "Auto Close UI",
-                    Content = "Lỗi khi ẩn UI: " .. tostring(err),
-                    Duration = 5
-                })
-            end
-        else
-            Fluent:Notify({
-                Title = "Auto Close UI",
-                Content = "Đang hiện UI...",
-                Duration = 2
-            })
-            local success, err = pcall(function()
-                fluentGui.Enabled = true -- Hiện UI
-            end)
-            if not success then
-                Fluent:Notify({
-                    Title = "Auto Close UI",
-                    Content = "Lỗi khi hiện UI: " .. tostring(err),
-                    Duration = 5
-                })
-            end
-        end
+mainHubSection:AddButton({
+    Title = "Toggle UI",
+    Description = "Nhấn để ẩn/hiện giao diện",
+    Callback = function()
+        fluentGui.Enabled = not fluentGui.Enabled
+        Fluent:Notify({
+            Title = "Toggle UI",
+            Content = fluentGui.Enabled and "Đã hiện UI" or "Đã ẩn UI",
+            Duration = 2
+        })
     end
 })
 
--- Tab: Kaitun
 local kaitunSection = Tabs.Kaitun:AddSection("Kaitun Scripts")
 kaitunSection:AddToggle("KaitunToggle", {
     Title = "Kaitun",
@@ -304,7 +259,6 @@ if ToggleStates["KaitunAV"] then
     toggleScript("KaitunAV", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/kaitunAV.lua", true, "KaitunAV")
 end
 
--- Tab: Main
 local mainSection = Tabs.Main:AddSection("Scripts")
 mainSection:AddToggle("WAzureToggle", {
     Title = "W-Azure",
@@ -368,9 +322,13 @@ if ToggleStates["Banana Hub 3"] then
     toggleScript("Banana Hub 3", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana.lua", true, "Banana Hub 3")
 end
 
--- Tab: AutoBounty
 local autoBountySection = Tabs.AutoBounty:AddSection("AutoBounty Features")
 autoBountySection:AddToggle("WAzureAutoBountyToggle", {
+    Title = "W-Azure AutoBounty",
+    Description = "Bật để chạy W-Azure AutoBounty script",
+    Default = ToggleStates["W-Azure AutoBounty"] or false,
+    Callback = function(value)
+        toggleScript("W-Azure AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main WAzureAutoBountyToggle", {
     Title = "W-Azure AutoBounty",
     Description = "Bật để chạy W-Azure AutoBounty script",
     Default = ToggleStates["W-Azure AutoBounty"] or false,
@@ -410,7 +368,6 @@ autoBountySection:AddButton({
     end
 })
 
--- Tab: Updates
 local updatesSection = Tabs.Updates:AddSection("Update Logs")
 updatesSection:AddButton({
     Title = "View Updates",
@@ -436,7 +393,6 @@ updatesSection:AddButton({
     end
 })
 
--- Tab: Leviathan
 local leviathanSection = Tabs.Leviathan:AddSection("Leviathan Script")
 leviathanSection:AddToggle("LeviathanToggle", {
     Title = "Run Leviathan",
