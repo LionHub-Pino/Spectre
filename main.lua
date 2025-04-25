@@ -1,15 +1,21 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
+-- Kiểm tra getgenv()
+if not getgenv then
+    game.Players.LocalPlayer:Kick("Executor không hỗ trợ getgenv()! Vui lòng dùng executor như Synapse X hoặc Arceus X.")
+    return
+end
+
 getgenv().Key = "pino_ontop"
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local VoiceChatService = game:GetService("VoiceChatService")
+local RunService = game:GetService("RunService") or error("Không thể lấy RunService!")
+local UserInputService = game:GetService("UserInputService") or error("Không thể lấy UserInputService!")
+local HttpService = game:GetService("HttpService") or error("Không thể lấy HttpService!")
+local TeleportService = game:GetService("TeleportService") or error("Không thể lấy TeleportService!")
+local VoiceChatService = game:GetService("VoiceChatService") or error("Không thể lấy VoiceChatService!")
 
 if _G.LionHubLoaded then
     return
@@ -324,11 +330,6 @@ end
 
 local autoBountySection = Tabs.AutoBounty:AddSection("AutoBounty Features")
 autoBountySection:AddToggle("WAzureAutoBountyToggle", {
-    Title = "W-Azure AutoBounty",
-    Description = "Bật để chạy W-Azure AutoBounty script",
-    Default = ToggleStates["W-Azure AutoBounty"] or false,
-    Callback = function(value)
-        toggleScript("W-Azure AutoBounty", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main WAzureAutoBountyToggle", {
     Title = "W-Azure AutoBounty",
     Description = "Bật để chạy W-Azure AutoBounty script",
     Default = ToggleStates["W-Azure AutoBounty"] or false,
