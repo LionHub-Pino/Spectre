@@ -7,6 +7,17 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local VoiceChatService = game:GetService("VoiceChatService")
 
+-- Biến cờ để ngăn script chạy lại
+if _G.LionHubLoaded then
+    return
+end
+_G.LionHubLoaded = true
+
+-- Kiểm tra xem UI đã được tạo chưa để tránh loop
+if playerGui:FindFirstChild("WindUI") then
+    return
+end
+
 -- Tải WindUI Lib
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
@@ -23,7 +34,7 @@ end
 
 -- Tạo cửa sổ WindUI với key system tích hợp
 local Window = WindUI:CreateWindow({
-    Title = "Krnl",
+    Title = "Krnl Mobile",
     Icon = "door-open",
     Author = "Pino_azure",
     Folder = "LionHubData",
@@ -33,7 +44,7 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = false,
     KeySystem = { 
-        Key = { "pino_ontop", "LionHub", "VietNam" },
+        Key = { "pino_ontop", "LionHub", "VietNam", "Seggay" },
         Note = "Nhập key chính xác để tiếp tục.",
         URL = "https://discord.gg/wmUmGVG6ut",
         SaveKey = true,
@@ -43,6 +54,9 @@ local Window = WindUI:CreateWindow({
         },
     },
 })
+
+-- Lưu tham chiếu ScreenGui để ẩn/hiện
+local windUiGui = playerGui:FindFirstChild("WindUI") or Window.ScreenGui
 
 -- Anti-AFK
 spawn(function()
@@ -54,7 +68,7 @@ spawn(function()
     end
 end)
 
--- Biến để theo dõi trạng thái của các script
+-- Biến để theo dõi trạng thái
 local ScriptStates = {}
 local ToggleStates = {}
 local ConfigFile = "LionHubData/ToggleStates.json"
@@ -96,6 +110,9 @@ loadToggleStates()
 
 -- Hàm để chạy hoặc dừng script
 local function toggleScript(scriptName, url, enabled, notifyTitle, notifyIcon)
+    if ToggleStates[scriptName] == enabled then
+        return -- Ngăn chạy lại nếu trạng thái không thay đổi
+    end
     ToggleStates[scriptName] = enabled
     saveToggleStates()
     
@@ -159,7 +176,7 @@ end
 
 Tabs.MainHub:Toggle({
     Title = "Auto Close UI",
-    Desc = "Bật để tự động đóng UI",
+    Desc = "Bật để ẩn UI (bật lại để hiện)",
     Value = ToggleStates["AutoCloseUI"] or false,
     Callback = function(enabled)
         ToggleStates["AutoCloseUI"] = enabled
@@ -167,18 +184,36 @@ Tabs.MainHub:Toggle({
         if enabled then
             WindUI:Notify({
                 Title = "Auto Close UI",
-                Content = "Đang đóng UI...",
+                Content = "Đang ẩn UI...",
                 Icon = "door-open",
                 Duration = 2,
             })
             wait(2)
             local success, err = pcall(function()
-                Window:Destroy() -- Đóng UI
+                windUiGui.Enabled = false -- Ẩn UI
             end)
             if not success then
                 WindUI:Notify({
                     Title = "Auto Close UI",
-                    Content = "Lỗi khi đóng UI: " .. tostring(err),
+                    Content = "Lỗi khi ẩn UI: " .. tostring(err),
+                    Icon = "door-open",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Auto Close UI",
+                Content = "Đang hiện UI...",
+                Icon = "door-open",
+                Duration = 2,
+            })
+            local success, err = pcall(function()
+                windUiGui.Enabled = true -- Hiện UI
+            end)
+            if not success then
+                WindUI:Notify({
+                    Title = "Auto Close UI",
+                    Content = "Lỗi khi hiện UI: " .. tostring(err),
                     Icon = "door-open",
                     Duration = 5,
                 })
@@ -186,26 +221,6 @@ Tabs.MainHub:Toggle({
         end
     end
 })
-if ToggleStates["AutoCloseUI"] then
-    WindUI:Notify({
-        Title = "Auto Close UI",
-        Content = "Đang đóng UI...",
-        Icon = "door-open",
-        Duration = 2,
-    })
-    wait(2)
-    local success, err = pcall(function()
-        Window:Destroy() -- Đóng UI
-    end)
-    if not success then
-        WindUI:Notify({
-            Title = "Auto Close UI",
-            Content = "Lỗi khi đóng UI: " .. tostring(err),
-            Icon = "door-open",
-            Duration = 5,
-        })
-    end
-end
 
 -- Tab: Kaitun
 Tabs.Kaitun:Section({ Title = "Kaitun Scripts" })
@@ -367,7 +382,7 @@ local bananaHub3Toggle = Tabs.Main:Toggle({
     end
 })
 if ToggleStates["Banana Hub 3"] then
-    toggleScript("Banana Hub 3", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/main.lua", true, "Banana Hub 3", "shield")
+    toggleScript("Banana Hub 3", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/banana.lua", true, "Banana Hub 3", "shield")
 end
 
 -- Tab: AutoBounty
