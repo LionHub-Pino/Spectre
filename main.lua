@@ -51,6 +51,29 @@ local isMobile = UserInputService.TouchEnabled
 
 local fluentGui = playerGui:FindFirstChild("FluentUI") or Window.ScreenGui
 
+-- Tạo nút bật/tắt UI ở ngoài Fluent UI
+local toggleGui = Instance.new("ScreenGui")
+toggleGui.Name = "ToggleUIGui"
+toggleGui.Parent = playerGui
+toggleGui.ResetOnSpawn = false
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Text = "Toggle UI"
+toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Parent = toggleGui
+toggleButton.MouseButton1Click:Connect(function()
+    fluentGui.Enabled = not fluentGui.Enabled
+    Fluent:Notify({
+        Title = "Toggle UI",
+        Content = fluentGui.Enabled and "Đã hiện UI" or "Đã ẩn UI",
+        Duration = 2
+    })
+end)
+
+-- Chống AFK
 spawn(function()
     while true do
         local VirtualUser = game:GetService("VirtualUser")
@@ -154,19 +177,6 @@ mainHubSection:AddToggle("MainHubToggle", {
 if ToggleStates["MainHub"] then
     toggleScript("MainHub", "https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/mainhub.lua", true, "MainHub")
 end
-
-mainHubSection:AddButton({
-    Title = "Toggle UI",
-    Description = "Nhấn để ẩn/hiện giao diện",
-    Callback = function()
-        fluentGui.Enabled = not fluentGui.Enabled
-        Fluent:Notify({
-            Title = "Toggle UI",
-            Content = fluentGui.Enabled and "Đã hiện UI" or "Đã ẩn UI",
-            Duration = 2
-        })
-    end
-})
 
 local kaitunSection = Tabs.Kaitun:AddSection("Kaitun Scripts")
 kaitunSection:AddToggle("KaitunToggle", {
