@@ -20,7 +20,7 @@ end
 
 local ValidKeys = { "pino_ontop", "LionHub", "VietNam", "Seggay" }
 if not getgenv().Key or not table.find(ValidKeys, getgenv().Key) then
-    game.Players.LocalPlayer:Kick("Key không hợp lệ! Vui lòng nhập key đúng: pino_ontop, LionHub, VietNam, hoặc Seggay.")
+    game.Players.LocalPlayer:Kick("Key Sai Xin Vui Lòng Nhập đúng key / wrong key please try again.")
     return
 end
 
