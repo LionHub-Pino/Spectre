@@ -1,15 +1,3 @@
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-
--- Kiểm tra getgenv()
-if not getgenv then
-    game.Players.LocalPlayer:Kick("Executor không hỗ trợ getgenv()! Vui lòng dùng executor như Synapse X hoặc Arceus X.")
-    return
-end
-
-getgenv().Key = "pino_ontop"
-getgenv().Image = "rbxassetid://1234567890" -- Thay bằng Asset ID của hình lá cờ Việt Nam bạn upload
-getgenv().ToggleUI = "E" -- Phím để ẩn/hiện UI (có thể đổi thành phím khác)
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
