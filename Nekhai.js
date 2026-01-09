@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         CATTE BYPASS UI
+// @name         36 cây nem chua
 // @namespace    http://tampermonkey.net/
 // @version      3.6
 // @author       CATTE
