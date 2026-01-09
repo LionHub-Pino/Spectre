@@ -1,143 +1,119 @@
 // ==UserScript==
-// @name         36 cây nem chua
+// @name         36 Cây Nem chua ( auto bypass nên chỉ cần treo đó 1 tí là xong )
 // @namespace    http://tampermonkey.net/
-// @version      3.6
-// @author       CATTE
+// @version      11.0
+// @author       Tz Team
 // @match        *://*/*
+// @run-at       document-end
 // @grant        GM_xmlhttpRequest
-// @grant        GM_addStyle
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    GM_addStyle(`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
-        #catte-panel {
-            position: fixed; bottom: 30px; right: 30px; z-index: 999999;
-            background: #050505; border: 1px solid #1a1a1a;
-            border-radius: 28px; width: 320px; padding: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            font-family: 'Inter', sans-serif; color: #fff;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(150%); opacity: 0;
-        }
-        #catte-panel.show { transform: translateX(0); opacity: 1; }
-        .catte-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .catte-logo { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #222; }
-        .catte-title { font-weight: 900; font-size: 18px; letter-spacing: -1px; text-transform: uppercase; }
-        .catte-input {
-            width: 100%; background: #0c0c0c; border: 1px solid #1a1a1a;
-            padding: 14px; border-radius: 16px; color: #fff;
-            font-size: 11px; outline: none; margin-bottom: 12px;
-            font-family: monospace;
-        }
-        .catte-btn {
-            width: 100%; background: #fff; color: #000; border: none;
-            padding: 14px; border-radius: 16px; font-weight: 900;
-            font-size: 10px; text-transform: uppercase; cursor: pointer; 
-            transition: 0.3s; letter-spacing: 1px;
-        }
-        .catte-btn:hover { transform: translateY(-2px); background: #e0e0e0; }
-        .catte-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        #catte-res-box {
-            margin-top: 15px; padding: 15px; background: #0c0c0c;
-            border: 1px dashed #333; border-radius: 16px;
-            font-size: 11px; word-break: break-all; display: none; 
-            cursor: pointer; text-align: center; color: #aaa;
-        }
-        .catte-launcher {
-            position: fixed; bottom: 30px; right: 30px; z-index: 999998;
-            background: #fff; color: #000; width: 50px; height: 50px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-weight: 900; font-size: 14px;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.1); transition: 0.3s;
-        }
-    `);
+    const WORKER_URL = "https://rough-flower-a9e9.fluxusvip.workers.dev";
 
-    const panel = document.createElement('div');
-    panel.id = 'catte-panel';
-    panel.innerHTML = `
-        <div class="catte-header">
-            <img class="catte-logo" src="https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/IMG_2059.jpeg">
-            <div>
-                <div class="catte-title">CATTE</div>
-                <div style="font-size: 8px; opacity: 0.3; text-transform: uppercase; font-weight: 800; letter-spacing: 2px;">Bypass System</div>
-            </div>
-        </div>
-        <input type="text" id="catte-url" class="catte-input" placeholder="PASTE LINK HERE..." value="${window.location.href}">
-        <button id="catte-exec" class="catte-btn">Bypass Now</button>
-        <div id="catte-res-box"></div>
+    // 1. CSS Giao diện
+    const style = document.createElement('style');
+    style.innerHTML = `
+        #tz-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #0a0a0a; border: 1px solid #ff3333; border-radius: 12px; padding: 15px; z-index: 9999999; box-shadow: 0 5px 25px rgba(255,51,51,0.3); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: none; }
+        .tz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .tz-title { color: #ff3333; font-weight: 900; font-size: 16px; letter-spacing: 1px; }
+        #tz-status { color: #fff; font-size: 12px; font-weight: 500; }
+        .tz-prog-bg { width: 100%; height: 4px; background: #222; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+        #tz-bar { width: 0%; height: 100%; background: #ff3333; transition: width 0.4s linear; }
+        #tz-result { display: none; background: #151515; border: 1px solid #333; padding: 10px; border-radius: 6px; margin-top: 10px; color: #00ff88; font-family: monospace; cursor: pointer; text-align: center; word-break: break-all; font-size: 13px; }
+        .tz-timer-txt { color: #666; font-size: 10px; text-align: center; margin-top: 5px; }
     `;
+    document.head.appendChild(style);
 
-    const launcher = document.createElement('div');
-    launcher.className = 'catte-launcher';
-    launcher.innerText = 'CT';
+    // 2. Tạo UI
+    const container = document.createElement('div');
+    container.id = 'tz-container';
+    container.innerHTML = `
+        <div class="tz-header">
+            <span class="tz-title">TZ BYPASS</span>
+            <span id="tz-status">Đang kiểm tra link...</span>
+        </div>
+        <div class="tz-prog-bg"><div id="tz-bar"></div></div>
+        <div id="tz-result"></div>
+        <div id="tz-timer-txt">Dự kiến xong trong: <span id="tz-sec">10</span>s</div>
+    `;
+    document.body.appendChild(container);
 
-    document.body.appendChild(panel);
-    document.body.appendChild(launcher);
+    const bar = document.getElementById('tz-bar');
+    const status = document.getElementById('tz-status');
+    const secTxt = document.getElementById('tz-sec');
+    const resBox = document.getElementById('tz-result');
 
-    launcher.onclick = () => {
-        panel.classList.add('show');
-        launcher.style.display = 'none';
-    };
+    // Biến điều khiển
+    let timeLeft = 10;
+    let progress = 0;
+    let isActive = false;
 
-    document.addEventListener('mousedown', (e) => {
-        if (!panel.contains(e.target) && !launcher.contains(e.target)) {
-            panel.classList.remove('show');
-            setTimeout(() => { launcher.style.display = 'flex'; }, 300);
+    // Hàm hiển thị UI (chỉ gọi khi cần)
+    function showUI() {
+        isActive = true;
+        container.style.display = 'block';
+    }
+
+    // Hàm tự hủy/ẩn nếu không có dữ liệu
+    function destroy() {
+        container.style.display = 'none';
+        container.remove();
+    }
+
+    // 3. Tiến trình giả lập (Progress Bar)
+    const progressInterval = setInterval(() => {
+        if (!isActive) return;
+        if (timeLeft > 1) {
+            timeLeft--;
+            secTxt.innerText = timeLeft;
         }
-    });
+        if (progress < 95) {
+            progress += (95 - progress) * 0.2;
+            bar.style.width = progress + "%";
+        }
+    }, 1000);
 
-    const btn = document.getElementById('catte-exec');
-    const resBox = document.getElementById('catte-res-box');
-    const urlInput = document.getElementById('catte-url');
+    // 4. Gọi API kiểm tra link
+    GM_xmlhttpRequest({
+        method: "GET",
+        url: `${WORKER_URL}/?url=${encodeURIComponent(window.location.href)}`,
+        onload: function(response) {
+            try {
+                const data = JSON.parse(response.responseText);
+                const res = data.result || data.bypassed_url;
 
-    btn.onclick = () => {
-        const target = urlInput.value;
-        if (!target) return;
-        
-        btn.innerText = 'Bypassing...';
-        btn.disabled = true;
-        resBox.style.display = 'none';
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: `https://rough-flower-a9e9.fluxusvip.workers.dev/?url=${encodeURIComponent(target)}`,
-            onload: function(response) {
-                try {
-                    const data = JSON.parse(response.responseText);
-                    const result = data.result || data.bypassed_url || data.key || data.data;
-                    if (result) {
-                        resBox.innerText = result;
-                        resBox.style.display = 'block';
-                        btn.innerText = 'Success!';
+                // Nếu Server có kết quả bypass hợp lệ
+                if (res && !data.error && res !== "Invalid URL" && res !== window.location.href) {
+                    showUI(); // Chỉ hiện UI khi thực sự có kết quả
+                    clearInterval(progressInterval);
+                    bar.style.width = "100%";
+                    
+                    if (res.startsWith('http')) {
+                        status.innerText = "THÀNH CÔNG! ĐANG CHUYỂN HƯỚNG...";
+                        status.style.color = "#00ff88";
+                        setTimeout(() => window.location.href = res, 1000);
                     } else {
-                        resBox.innerText = 'Bypass failed.';
-                        resBox.style.display = 'block';
-                        btn.innerText = 'Try Again';
+                        status.innerText = "BYPASS XONG! CLICK ĐỂ COPY";
+                        status.style.color = "#00ff88";
+                        resBox.innerText = res;
+                        resBox.style.display = "block";
+                        document.getElementById('tz-timer-txt').style.display = 'none';
+                        resBox.onclick = () => {
+                            navigator.clipboard.writeText(res);
+                            status.innerText = "ĐÃ SAO CHÉP!";
+                        };
                     }
-                } catch (e) {
-                    resBox.innerText = 'Error response.';
-                    resBox.style.display = 'block';
-                    btn.innerText = 'Error';
+                } else {
+                    // Nếu không phải link cần bypass hoặc lỗi, âm thầm xóa script
+                    destroy();
                 }
-                btn.disabled = false;
-            },
-            onerror: function() {
-                resBox.innerText = 'Connection Error.';
-                resBox.style.display = 'block';
-                btn.innerText = 'Error';
-                btn.disabled = false;
+            } catch (e) {
+                destroy();
             }
-        });
-    };
-
-    resBox.onclick = () => {
-        navigator.clipboard.writeText(resBox.innerText);
-        const oldText = resBox.innerText;
-        resBox.innerText = 'COPIED!';
-        setTimeout(() => { resBox.innerText = oldText; }, 1000);
-    };
-
+        },
+        onerror: () => destroy()
+    });
 })();
