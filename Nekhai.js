@@ -11,7 +11,7 @@
 (function() {
     'use strict';
 
-    const WORKER_URL = "https://rough-flower-a9e9.fluxusvip.workers.dev";
+    const WORKER_URL = "https://raumaapi.fluxusvip.workers.dev/";
 
     // 1. CSS Giao diện
     const style = document.createElement('style');
