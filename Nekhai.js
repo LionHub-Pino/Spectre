@@ -1,119 +1,145 @@
 // ==UserScript==
-// @name         36 Cây Nem chua ( auto bypass nên chỉ cần treo đó 1 tí là xong )
+// @name         CATTE BYPASS UI - V2
 // @namespace    http://tampermonkey.net/
-// @version      11.0
-// @author       Tz Team
+// @version      2.6
+// @description  Bypass UI CATTE
+// @author       CATTE & 36THANHHOA
 // @match        *://*/*
-// @run-at       document-end
 // @grant        GM_xmlhttpRequest
+// @grant        GM_addStyle
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    const WORKER_URL = "https://raumaapi.fluxusvip.workers.dev/";
+    const WORKER_URL = "https://raumaapi.fluxusvip.workers.dev";
 
-    // 1. CSS Giao diện
-    const style = document.createElement('style');
-    style.innerHTML = `
-        #tz-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #0a0a0a; border: 1px solid #ff3333; border-radius: 12px; padding: 15px; z-index: 9999999; box-shadow: 0 5px 25px rgba(255,51,51,0.3); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: none; }
-        .tz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .tz-title { color: #ff3333; font-weight: 900; font-size: 16px; letter-spacing: 1px; }
-        #tz-status { color: #fff; font-size: 12px; font-weight: 500; }
-        .tz-prog-bg { width: 100%; height: 4px; background: #222; border-radius: 5px; overflow: hidden; margin: 8px 0; }
-        #tz-bar { width: 0%; height: 100%; background: #ff3333; transition: width 0.4s linear; }
-        #tz-result { display: none; background: #151515; border: 1px solid #333; padding: 10px; border-radius: 6px; margin-top: 10px; color: #00ff88; font-family: monospace; cursor: pointer; text-align: center; word-break: break-all; font-size: 13px; }
-        .tz-timer-txt { color: #666; font-size: 10px; text-align: center; margin-top: 5px; }
-    `;
-    document.head.appendChild(style);
+    GM_addStyle(`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+        #catte-panel { position: fixed; bottom: 30px; right: 30px; z-index: 2147483647 !important; background: #050505; border: 1px solid #1a1a1a; border-radius: 28px; width: 320px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); font-family: 'Inter', sans-serif; color: #fff; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(150%); opacity: 0; }
+        #catte-panel.show { transform: translateX(0); opacity: 1; }
+        .catte-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .catte-header-left { display: flex; align-items: center; gap: 12px; }
+        .catte-logo { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #222; }
+        .catte-title { font-weight: 900; font-size: 18px; letter-spacing: -1px; text-transform: uppercase; }
+        .catte-input { width: 100%; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 12px; border-radius: 12px; color: #fff; font-size: 11px; outline: none; margin-bottom: 8px; font-family: monospace; }
+        #catte-key-container { display: block; }
+        #catte-key-container.hidden { display: none; }
+        .catte-btn { width: 100%; background: #fff; color: #000; border: none; padding: 14px; border-radius: 16px; font-weight: 900; font-size: 10px; text-transform: uppercase; cursor: pointer; transition: 0.3s; letter-spacing: 1px; }
+        .catte-btn:hover { transform: translateY(-2px); }
+        .catte-option { display: flex; align-items: center; justify-content: space-between; margin: 10px 0; font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1a1a1a; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: #444; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #fff; }
+        input:checked + .slider:before { transform: translateX(14px); background-color: #000; }
+        #catte-res-box { margin-top: 15px; padding: 15px; background: #0c0c0c; border: 1px dashed #333; border-radius: 16px; font-size: 11px; word-break: break-all; display: none; cursor: pointer; text-align: center; color: #aaa; }
+        .reset-key-btn { font-size: 8px; color: #444; cursor: pointer; text-decoration: underline; }
+        .reset-key-btn:hover { color: #ff3333; }
+        .catte-launcher { position: fixed; bottom: 30px; right: 30px; z-index: 2147483646 !important; background: #fff; color: #000; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; }
+    `);
 
-    // 2. Tạo UI
-    const container = document.createElement('div');
-    container.id = 'tz-container';
-    container.innerHTML = `
-        <div class="tz-header">
-            <span class="tz-title">TZ BYPASS</span>
-            <span id="tz-status">Đang kiểm tra link...</span>
+    const panel = document.createElement('div');
+    panel.id = 'catte-panel';
+    let savedKey = GM_getValue("catte_key", "");
+    const autoStatus = GM_getValue("catte_auto", false);
+
+    panel.innerHTML = `
+        <div class="catte-header">
+            <div class="catte-header-left">
+                <img class="catte-logo" src="https://raw.githubusercontent.com/LionHub-Pino/Spectre/refs/heads/main/IMG_2059.jpeg">
+                <div>
+                    <div class="catte-title">CATTE</div>
+                    <div style="font-size: 8px; opacity: 0.3; text-transform: uppercase; font-weight: 800; letter-spacing: 2px;">Bypass System</div>
+                </div>
+            </div>
+            <span class="reset-key-btn" id="catte-reset-key">RESET KEY</span>
         </div>
-        <div class="tz-prog-bg"><div id="tz-bar"></div></div>
-        <div id="tz-result"></div>
-        <div id="tz-timer-txt">Dự kiến xong trong: <span id="tz-sec">10</span>s</div>
+        <div id="catte-key-container" class="${savedKey ? 'hidden' : ''}">
+            <input type="text" id="catte-user-key" class="catte-input" placeholder="ENTER ACCESS KEY..." value="${savedKey}">
+        </div>
+        <input type="text" id="catte-url" class="catte-input" placeholder="PASTE LINK HERE..." value="${window.location.href}">
+        <div class="catte-option">
+            <span>Auto Bypass</span>
+            <label class="switch">
+                <input type="checkbox" id="catte-auto-sw" ${autoStatus ? 'checked' : ''}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <button id="catte-exec" class="catte-btn">Bypass Now</button>
+        <div id="catte-res-box"></div>
     `;
-    document.body.appendChild(container);
 
-    const bar = document.getElementById('tz-bar');
-    const status = document.getElementById('tz-status');
-    const secTxt = document.getElementById('tz-sec');
-    const resBox = document.getElementById('tz-result');
+    const launcher = document.createElement('div');
+    launcher.className = 'catte-launcher';
+    launcher.innerText = 'CT';
+    document.body.appendChild(panel);
+    document.body.appendChild(launcher);
 
-    // Biến điều khiển
-    let timeLeft = 10;
-    let progress = 0;
-    let isActive = false;
+    const btn = document.getElementById('catte-exec');
+    const resBox = document.getElementById('catte-res-box');
+    const keyContainer = document.getElementById('catte-key-container');
+    const keyInput = document.getElementById('catte-user-key');
+    const resetKey = document.getElementById('catte-reset-key');
 
-    // Hàm hiển thị UI (chỉ gọi khi cần)
-    function showUI() {
-        isActive = true;
-        container.style.display = 'block';
-    }
-
-    // Hàm tự hủy/ẩn nếu không có dữ liệu
-    function destroy() {
-        container.style.display = 'none';
-        container.remove();
-    }
-
-    // 3. Tiến trình giả lập (Progress Bar)
-    const progressInterval = setInterval(() => {
-        if (!isActive) return;
-        if (timeLeft > 1) {
-            timeLeft--;
-            secTxt.innerText = timeLeft;
+    resetKey.onclick = () => { keyContainer.classList.remove('hidden'); keyInput.focus(); };
+    launcher.onclick = () => { panel.classList.add('show'); launcher.style.display = 'none'; };
+    
+    document.addEventListener('mousedown', (e) => {
+        if (!panel.contains(e.target) && !launcher.contains(e.target)) {
+            panel.classList.remove('show');
+            setTimeout(() => { launcher.style.display = 'flex'; }, 300);
         }
-        if (progress < 95) {
-            progress += (95 - progress) * 0.2;
-            bar.style.width = progress + "%";
-        }
-    }, 1000);
-
-    // 4. Gọi API kiểm tra link
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: `${WORKER_URL}/?url=${encodeURIComponent(window.location.href)}`,
-        onload: function(response) {
-            try {
-                const data = JSON.parse(response.responseText);
-                const res = data.result || data.bypassed_url;
-
-                // Nếu Server có kết quả bypass hợp lệ
-                if (res && !data.error && res !== "Invalid URL" && res !== window.location.href) {
-                    showUI(); // Chỉ hiện UI khi thực sự có kết quả
-                    clearInterval(progressInterval);
-                    bar.style.width = "100%";
-                    
-                    if (res.startsWith('http')) {
-                        status.innerText = "THÀNH CÔNG! ĐANG CHUYỂN HƯỚNG...";
-                        status.style.color = "#00ff88";
-                        setTimeout(() => window.location.href = res, 1000);
-                    } else {
-                        status.innerText = "BYPASS XONG! CLICK ĐỂ COPY";
-                        status.style.color = "#00ff88";
-                        resBox.innerText = res;
-                        resBox.style.display = "block";
-                        document.getElementById('tz-timer-txt').style.display = 'none';
-                        resBox.onclick = () => {
-                            navigator.clipboard.writeText(res);
-                            status.innerText = "ĐÃ SAO CHÉP!";
-                        };
-                    }
-                } else {
-                    // Nếu không phải link cần bypass hoặc lỗi, âm thầm xóa script
-                    destroy();
-                }
-            } catch (e) {
-                destroy();
-            }
-        },
-        onerror: () => destroy()
     });
+
+    function doBypass() {
+        const target = document.getElementById('catte-url').value;
+        const key = keyInput.value.trim();
+        if (!key) { keyContainer.classList.remove('hidden'); alert("Vui lòng nhập Key!"); return; }
+        GM_setValue("catte_key", key);
+        keyContainer.classList.add('hidden');
+        btn.innerText = 'Bypassing...';
+        btn.disabled = true;
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: `${WORKER_URL}/api/bypass?url=${encodeURIComponent(target)}`,
+            headers: { "x-user-key": key },
+            onload: function(response) {
+                if (response.status === 401) {
+                    resBox.innerText = 'SAI KEY RỒI BRO!';
+                    resBox.style.display = 'block';
+                    keyContainer.classList.remove('hidden');
+                } else {
+                    try {
+                        const data = JSON.parse(response.responseText);
+                        const result = data.result || data.bypassed_url;
+                        if (result) {
+                            resBox.innerText = result;
+                            resBox.style.display = 'block';
+                            btn.innerText = 'Success!';
+                            if (document.getElementById('catte-auto-sw').checked && result.startsWith('http')) {
+                                window.location.href = result;
+                            }
+                        }
+                    } catch (e) { resBox.innerText = 'Error API.'; resBox.style.display = 'block'; }
+                }
+                btn.disabled = false;
+                if (btn.innerText !== 'Success!') btn.innerText = 'Bypass Now';
+            }
+        });
+    }
+
+    btn.onclick = doBypass;
+    document.getElementById('catte-auto-sw').onchange = (e) => GM_setValue("catte_auto", e.target.checked);
+    if (autoStatus && savedKey) { panel.classList.add('show'); launcher.style.display = 'none'; setTimeout(doBypass, 1000); }
+
+    resBox.onclick = () => {
+        navigator.clipboard.writeText(resBox.innerText);
+        const t = resBox.innerText;
+        resBox.innerText = 'COPIED!';
+        setTimeout(() => { resBox.innerText = t; }, 1000);
+    };
 })();
